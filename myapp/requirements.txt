@@ -1,0 +1,7 @@
+flask
+flask-sqlalchemy
+mysql-python
+sqlalchemy
+SQLAlchemy
+flask-mail
+flask-wtf
