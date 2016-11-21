@@ -72,6 +72,7 @@ for opt in opt_flags:
     elif opt == '--abiflags':
         if not getattr(sys, 'abiflags', None):
             exit_with_usage()
+        # noinspection PyUnresolvedReferences
         print(sys.abiflags)
 
     elif opt == '--configdir':

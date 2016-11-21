@@ -1,64 +1,46 @@
-
-# from flask_spyne import Spyne
-#
-# from spyne.protocol.json import JsonDocument
-# from spyne.protocol.http import HttpRpc
-# from spyne import Decimal, Unicode
-# from flask import request
-# from flask import json
-#
-# spyne = Spyne(app)
-#
-#
-# class GoogleAPI(spyne.Service):
-#     __service_url_path__ = ''
-#     __in_protocol__ = HttpRpc(validator='soft')
-#     __out_protocol__ = JsonDocument(ignore_wrappers=True)
-#
-#     name = ""
-#     address = ""
-#     city = ""
-#     state = ""
-#     zip = ""
-#
-#     def __init__(self, loc_name, loc_address, loc_city, loc_state, loc_zip):
-#         self.name = loc_name
-#         self.address = loc_address
-#         self.city = loc_city
-#         self.state = loc_state
-#         self.zip = loc_zip
-#
-#     @spyne.srpc(Decimal, Decimal, Decimal, _returns=Unicode)
-#     def process_data(lat, lon, radius):
-#         # Get the information from the CrimeReport API
-#         url = 'https://api.spotcrime.com/crimes.json'
-#         params = {'lat': lat, 'lon': lon, 'radius': radius, 'key': '.'}
-#         input_data = request.get(url=url, params=params)
-#         input_json = json.loads(input_data.text)  # Convert response to JSON
-#         return input_json
-#         # Create the output_json
-
 from myapp import app
-from flask import json
+from models import *
 import requests
 
 class GoogleAPI(object):
-    name = ""
     google_address = ""
 
-    def __init__(self, loc_name, loc_address, loc_city, loc_state, loc_zip):
-        self.name = loc_name
-        self.process_data(loc_address, loc_city, loc_state, loc_zip)
+    user_id = 1   #If multiple users change it
+    name = ""
+    address = ""
+    city =""
+    state = ""
+    zip = ""
+    lat = ""
+    lng = ""
 
-    def process_data(self, loc_address, loc_city, loc_state, loc_zip):
-        address = loc_address.replace (" ", "+")
-        city = loc_city.replace(" ", "+")
-        state = loc_state.replace(" ", "+")
+    def __init__(self, name, address, city, state, zip):
+        self.name = name
+        self.address = address
+        self.city = city
+        self.state = state
+        self.zip = zip
+        self.process_data()
+
+    def process_data(self):
+        address = self.address.replace(" ", "+")
+        city = self.city.replace(" ", "+")
+        state = self.state.replace(" ", "+")
         self.google_address = address + ",+" + city + ",+" + state
 
     def google(self):
         url = 'https://maps.googleapis.com/maps/api/geocode/json'
-        params = {'address': self.google_address, 'key': app.config["GOOGLE_KEY"]}
-        input_data = requests.get(url=url, params=params)
-        input_json = json.loads(input_data.text)  # Convert response to JSON
-        return input_json
+        params = {'address': self.google_address, 'key': app.config["GOOGLEMAPS_KEY"]}
+        details_resp = requests.get(url=url, params=params)
+        details_json = details_resp.json()  # Convert response to JSON
+        location = details_json['results'][0]['geometry']['location']
+        self.lat = location['lat']
+        self.lng = location['lng']
+        coordinate = { 'lat': self.lat, 'lng': self.lng }
+        self.addDB()
+        return coordinate
+
+    def addDB(self):
+        newLocation = Location(self.user_id, self.name, self.address, self.city, self.state, self.zip, self.lat, self.lng)
+        db.session.add(newLocation)
+        db.session.commit()

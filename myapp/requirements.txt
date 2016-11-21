@@ -3,5 +3,9 @@ flask-sqlalchemy
 mysql-python
 sqlalchemy
 SQLAlchemy
+SQLAlchemy-utils
 flask-mail
 flask-wtf
+Flask-MySQLdb
+bcrypt
+flask_googlemaps

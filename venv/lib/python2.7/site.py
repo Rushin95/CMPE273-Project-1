@@ -68,6 +68,7 @@ import os
 try:
     import __builtin__ as builtins
 except ImportError:
+    # noinspection PyUnresolvedReferences
     import builtins
 try:
     set
@@ -660,6 +661,7 @@ def fixclasspath():
 def execusercustomize():
     """Run custom user specific code, if available."""
     try:
+        # noinspection PyUnresolvedReferences
         import usercustomize
     except ImportError:
         pass

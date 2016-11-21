@@ -6,6 +6,7 @@
 	<!-- <link rel="stylesheet" href="../static/css/main.css"> -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <!--<script src="../static/js/mycode.js"></script> -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 </head>
 <body>
     <header>
@@ -15,9 +16,8 @@
                 <strong>
                     <ul class="menu">
                         <li><a href="{{ url_for('index') }}">Home</a></li>
-                        <li><a href="{{ url_for('login') }}">Login</a></li>
-                        <li><a href="{{ url_for('locations') }}">Locations</a></li>
-                        <li><a href="{{ url_for('contact') }}">Contact</a></li>
+                        <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                        <li><a href="{{ url_for('places') }}">Places</a></li>
                         <li><a href="{{ url_for('about') }}">About</a></li>
                         <li><a href="{{ url_for('faq') }}">FAQ</a></li>
                     </ul>
@@ -27,6 +27,11 @@
     </header>
 
     <div class="container">
+        {% for message in get_flashed_messages() %}
+            <div class="success_m">{{ message }}</div>
+            <br/>
+        {% endfor %}
+
         {% block content %}
         {% endblock %}
     </div>

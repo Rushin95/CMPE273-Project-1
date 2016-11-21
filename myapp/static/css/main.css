@@ -169,3 +169,40 @@ input#submit:hover
   padding: 10px;
   width: 400px;
 }
+
+.success_m {
+  background-color: #E6E6FA;
+  padding: 10px;
+  width: 400px;
+}
+
+
+/* Signup form */
+input#firstname,
+input#lastname,
+input#password {
+  width: 400px;
+  background-color: #fafafa;
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+  border: 1px solid #cccccc;
+  padding: 5px;
+  font-size: 1.1em;
+}
+
+input#password {
+  margin-bottom: 10px;
+}
+
+.div-left {
+ float:left;
+}
+.div-right {
+ float:left;
+
+}
+
+.inner-div {
+    margin-left: 150px;
+}

@@ -22,6 +22,7 @@ else:
         pass
     __version__ = real_distutils.__version__
 
+# noinspection PyUnresolvedReferences
 from distutils import dist, sysconfig
 
 try:

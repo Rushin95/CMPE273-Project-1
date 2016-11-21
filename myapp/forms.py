@@ -1,24 +1,39 @@
 from flask_wtf import FlaskForm
-from wtforms import TextAreaField, SubmitField, BooleanField, StringField
-from wtforms.validators import *
+from wtforms import TextAreaField, SubmitField, BooleanField, StringField, PasswordField
+from wtforms.validators import *     #so you call validators directly, instead of using validators.blahblah
 
-class ContactForm(FlaskForm):
-    name = StringField("Name", [InputRequired()])
-    email = StringField("Email", [InputRequired(), Email(),EqualTo('confirm_email', message='Emails must match')])
-    confirm_email = StringField("Email", [InputRequired(), Email()])
-    subject = StringField("Subject", [InputRequired()])
-    message = TextAreaField("Message", [InputRequired()])
-    submit = SubmitField("Send")
+from models import User
 
-class LoginForm(FlaskForm):
-    openid = StringField("Please enter your OpenID", [InputRequired()])         #DataRequired validator simply checks that the field is not submitted empty
-    remember_me = BooleanField("Remember Me", default=False)
-    sign_in = SubmitField("Sign In")
 
-class LocationsForm(FlaskForm):
-    name = StringField("Name", [InputRequired()])
+class PlacesForm(FlaskForm):
+    name = StringField("Name", [InputRequired("Please enter your name.")])
     address = StringField("Adress", [InputRequired()])
     city = StringField("City", [InputRequired()])
     state = StringField("State", [InputRequired()])
     zip = StringField("ZipCode", [InputRequired()])
     submit = SubmitField("Send")
+
+
+class SignupForm(FlaskForm):
+    firstname = StringField("First name", [InputRequired("Please enter your first name.")])
+    lastname = StringField("Last name", [InputRequired("Please enter your last name.")])
+    email = StringField("Email", [InputRequired("Please enter your email address."), Email("Please enter a valid email address."), EqualTo('confirm_email', message='Emails must match')])
+    confirm_email = StringField("Confirm Email", [InputRequired("Please confirm your email address."), Email("Please confirm with a valid email address.")])
+    password = PasswordField('Password', [InputRequired("Please enter a password.")])
+    submit = SubmitField("Create account")
+
+    #Constructor that just calls the base class' constructor (FlaskForm is the base class)
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+
+    #ensures an account does not already exist with the user's email address (username)
+    def validate(self):
+        if not FlaskForm.validate(self):
+            return False
+
+        user = User.query.filter_by(email=self.email.data.lower()).first()
+        if user:
+            self.email.errors.append("That email is already taken")
+            return False
+        else:
+            return True

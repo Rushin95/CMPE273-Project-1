@@ -1,13 +1,32 @@
+import os
+#We can access variables from config.py using --> app.config["VAR_NAME"].
+
 #Configure MySQL
-SQLALCHEMY_DATABASE_URI= \
-"mysql://root:supersecure@localhost/cmpe273"
+DB_USER = 'root'
+DB_PASSWORD = 'supersecure'
+DB_NAME = 'development'
+#DB_HOSTNAME = 'mysqlserver'		#docker-compose.yml hostname
+DB_HOSTNAME = 'localhost'           #for local use
+DB_URI = 'mysql://%s:%s@%s/%s'%(DB_USER, DB_PASSWORD, DB_HOSTNAME, DB_NAME)
+SQLALCHEMY_DATABASE_URI = DB_URI
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 #Configure WTF
 # The WTF_CSRF_ENABLED setting activates the cross-site request forgery prevention
 # The SECRET_KEY is used to create a cryptographic token that is used to validate a form.
 WTF_CSRF_ENABLED = True
-SECRET_KEY = 'Cm9obiBTY2hyb20fa3rjo3MgABNz'
+SECRET_KEY = os.urandom(24)
 
-GOOGLE_KEY = 'AIzaSyDTjklW141YfMMJh7BWWllamhPRsOD6LuU'
+#Config Mail
+MAIL_FROM_EMAIL = "juancpinzone@hotmail.com" # For use in application emails
+MAIL_SERVER = "smtp.mail.yahoo.com"
+MAIL_PORT = 465
+MAIL_USE_SSL = True
+MAIL_USE_TLS = False
+MAIL_USERNAME = 'loco_perro@rocketmail.com'
+MAIL_PASSWORD = 'SuperSecure2016Password'
 
-#STRIPE_API_KEY = 'SmFjb2IgS2FwbGFuLU1vc3MgaXMgYSBoZXJv'
+
+#Configure Googlge Key required to connect GoogleMaps API
+GOOGLEMAPS_KEY = 'AIzaSyBYsJ3ig9aPJCgfk45XqRj-ZfqreytYC-w'
+#                  'AIzaSyDTjklW141YfMMJh7BWWllamhPRsOD6LuU'
