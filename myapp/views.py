@@ -38,29 +38,35 @@ def places():
 
     #Import markers from DB
     my_markers = {
-        icons.dots.green: [(37.4419, -122.1419, "AddressGreen1"), (37.4500, -122.1350, "AddressGreen2")],
-        icons.dots.red: [(37.4300, -122.1400, "AddressRed")]
+        icons.dots.red: [(37.4300, -122.1400)]
     }
-    mymap = Map(
-        identifier="mymap",  # for DOM element
-        varname="mymap",  # for JS object name
-        lat=37.4419,
-        lng=-122.1419,
-        style="width:400px;height:400px;margin:50;",
-        markers=my_markers
-    )
+
 
     if request.method == 'POST':        ##capture the form field data and check if it's valid
         if form.validate():
             obj = GoogleAPI(form.name.data, form.address.data, form.city.data, form.state.data, form.zip.data)
-            print(obj.google())
+            test1=obj.google().get('lat')
+            test2=obj.google().get('lng')
+            list=(test1,test2)
+            print (my_markers.values())
+            my_markers[icons.dots.red].append(list)
+            print (my_markers.values())
+            mymap = Map(
+            identifier="mymap",  # for DOM element
+            varname="mymap",  # for JS object name
+            lat=37.4419,
+            lng=-122.1419,
+            style="width:400px;height:400px;margin:50;",
+            markers=my_markers
+            )
+            #my_markers.values().__add__(obj.google())
             return render_template('places.html', title='Places', form=form, mymap=mymap)
         else:
             flash('All fields are required.')
-            return render_template('places.html', title='Places', form=form, mymap=mymap)
+            #return render_template('places.html', title='Places', form=form, mymap=mymap)
 
     elif request.method == 'GET':       # else, form should be retrieved and loaded in browser
-        return render_template('places.html', title='Places', form=form, mymap=mymap)
+        return render_template('places.html', title='Places', form=form)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
