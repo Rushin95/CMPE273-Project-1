@@ -10,26 +10,15 @@
             {{ form.name.label }}
             {{ form.name }}
 
-            {{ form.address.label }}
-            {{ form.address }}
-
-            {{ form.city.label }}
-            {{ form.city }}
-
-            {{ form.state.label }}
-            {{ form.state }}
-
-            {{ form.zip.label }}
-            {{ form.zip }}
+            {{ form.Gaddress.label }}
+            {{ form.Gaddress }}
 
             {{ form.submit }}
         </form>
     </div>
-
     <div class="div-right">
         <h3> Map - Current Places </h3>
         <div class="inner-div">
-            {{ "decoupled-map" | googlemap_js(37.4419, -122.1419, markers=[]) }}
             {% if mymap %}
                 {{ mymap.js }}
                 {{ mymap.html }}
@@ -37,4 +26,27 @@
         </div>
     </div>
 
+<script>
+    function initialize() {
+        var input = document.getElementById('Gaddress');
+        autocomplete = new google.maps.places.Autocomplete(input, {types: ['geocode']} );
+        autocomplete.addListener('place_changed', fillInZipCode);
+    }
+
+    function fillInZipCode() {
+        var place = autocomplete.getPlace();
+
+        for (var i = 0; i < place.address_components.length; i++) {
+            var addressType = place.address_components[i].types[0];
+            if (addressType == "postal_code") {
+                var val = place.address_components[i]['short_name'];
+                break;
+             }
+        }
+
+        document.getElementById('Gaddress').value = document.getElementById('Gaddress').value + ", " + val;
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+</script>
 {% endblock %}

@@ -13,13 +13,15 @@ class GoogleAPI(object):
     zip = ""
     lat = ""
     lng = ""
+    is_end_point = False;
 
-    def __init__(self, name, address, city, state, zip):
+    def __init__(self, name, address, city, state, zip, is_end_point):
         self.name = name
         self.address = address
         self.city = city
         self.state = state
         self.zip = zip
+        self.is_end_point = is_end_point
         self.process_data()
 
     def process_data(self):
@@ -28,7 +30,7 @@ class GoogleAPI(object):
         state = self.state.replace(" ", "+")
         self.google_address = address + ",+" + city + ",+" + state
 
-    def google(self):
+    def get_coordinates(self):
         url = 'https://maps.googleapis.com/maps/api/geocode/json'
         params = {'address': self.google_address, 'key': app.config["GOOGLEMAPS_KEY"]}
         details_resp = requests.get(url=url, params=params)
@@ -41,6 +43,6 @@ class GoogleAPI(object):
         return coordinate
 
     def addDB(self):
-        newLocation = Location(self.user_id, self.name, self.address, self.city, self.state, self.zip, self.lat, self.lng)
+        newLocation = Location(self.user_id, self.name, self.address, self.city, self.state, self.zip, self.lat, self.lng, self.is_end_point)
         db.session.add(newLocation)
         db.session.commit()

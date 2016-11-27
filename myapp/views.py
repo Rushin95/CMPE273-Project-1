@@ -1,4 +1,4 @@
-from flask import render_template, redirect, request, flash
+from flask import render_template, redirect, request, flash, url_for
 from flask_mail import Message
 from flask_googlemaps import Map, icons
 
@@ -34,32 +34,61 @@ def faq():
 @app.route('/places', methods=['GET', 'POST'])
 def places():
     form = PlacesForm()
-    # creating a map in the view
+    # Create a User by default
+    if not User.query.get(1):
+        newuser = User("", "", "", "")
+        db.session.add(newuser)
+        db.session.commit()
 
-    #Import markers from DB
-    my_markers = {
-        icons.dots.green: [(37.4419, -122.1419, "AddressGreen1"), (37.4500, -122.1350, "AddressGreen2")],
-        icons.dots.red: [(37.4300, -122.1400, "AddressRed")]
-    }
-    mymap = Map(
-        identifier="mymap",  # for DOM element
-        varname="mymap",  # for JS object name
-        lat=37.4419,
-        lng=-122.1419,
-        style="width:400px;height:400px;margin:50;",
-        markers=my_markers
-    )
+    my_markers = { icons.dots.green: [], icons.dots.red: [] }
+
+    # Import markers from Locations on DB
+    locations = Location.query.all()
+    for loc in locations:
+        lat = loc.lat
+        lng = loc.lng
+        point_info = loc.address + ", " + loc.city + ", " + loc.state + ", " + unicode(loc.zip)
+        point = (lat, lng, point_info)
+        if(loc.is_end_point):
+            my_markers[icons.dots.red].append(point)
+        else:
+            my_markers[icons.dots.green].append(point)
 
     if request.method == 'POST':        ##capture the form field data and check if it's valid
         if form.validate():
-            obj = GoogleAPI(form.name.data, form.address.data, form.city.data, form.state.data, form.zip.data)
-            print(obj.google())
-            return render_template('places.html', title='Places', form=form, mymap=mymap)
+            #print form.Gaddress.data
+            data = [x.strip() for x in form.Gaddress.data.split(',')]
+            #If invalid Address Format
+            if len(data) != 5:
+                flash('Invalid Address format. Allowed Format: Street Address, City, State, Country, Zipcode')
+                mymap = Map(identifier="mymap", varname="mymap", lat=app.config['LAT'], lng=app.config['LNG'],
+                            style="width:400px;height:400px;margin:50;", markers=my_markers, zoom=9)
+                return render_template('places.html', title='Places', form=form, mymap=mymap)
+
+            #Get latitude and longitude and Store point into the DB
+            obj = GoogleAPI(form.name.data, data[0], data[1], data[2], data[4], False)
+            coordinate = obj.get_coordinates()
+
+            #Add point to the map
+            point_info = data[0] + ", " + data[1] + ", " + data[2] + ", " + data[4]
+            point = (coordinate.get('lat'), coordinate.get('lng'), point_info)
+            my_markers[icons.dots.green].append(point)
+
+            # After a Valid Form is fill ALWAYS USE redirect
+            return redirect(url_for('places'))
         else:
             flash('All fields are required.')
+            mymap = Map(identifier="mymap", varname="mymap", lat=app.config['LAT'], lng=app.config['LNG'],
+                        style="width:400px;height:400px;margin:50;", markers=my_markers, zoom=9)
+            # initial GET or INVALID form use render_template
             return render_template('places.html', title='Places', form=form, mymap=mymap)
 
     elif request.method == 'GET':       # else, form should be retrieved and loaded in browser
+        # Create Map after have the markers defined. Cuase it put markers only when create map object
+        # identifier for DOM element, varname for JS object name
+        mymap = Map(identifier="mymap", varname="mymap", lat=app.config['LAT'], lng=app.config['LNG'],
+                    style="width:400px;height:400px;margin:50;", markers=my_markers, zoom=9)
+        # initial GET use render_template
         return render_template('places.html', title='Places', form=form, mymap=mymap)
 
 

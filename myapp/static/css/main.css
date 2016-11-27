@@ -100,6 +100,7 @@ input#name,
 input#email,
 input#confirm_email,
 input#subject,
+input#Gaddress,
 input#address,
 input#city,
 input#state,
@@ -199,10 +200,9 @@ input#password {
  float:left;
 }
 .div-right {
- float:left;
-
+ float:right;
 }
 
 .inner-div {
-    margin-left: 150px;
+    margin-left: 100px;
 }

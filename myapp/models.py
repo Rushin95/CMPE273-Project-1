@@ -28,11 +28,12 @@ class Location(db.Model):
     address = db.Column(db.String(200))
     city = db.Column(db.String(50))
     state = db.Column(db.String(50))
-    zip =  db.Column(db.Integer)
+    zip =  db.Column(db.String(20))
     lat = db.Column(db.Float)
     lng = db.Column(db.Float)
+    is_end_point = db.Column(db.Boolean, unique=False, default=False)
 
-    def __init__(self, user_id, name, address, city, state, zip, lat, lng):
+    def __init__(self, user_id, name, address, city, state, zip, lat, lng, is_end_point):
         self.user_id = user_id
         self.name = name
         self.address = address
@@ -41,3 +42,4 @@ class Location(db.Model):
         self.zip = zip
         self.lat = lat
         self.lng = lng
+        self.is_end_point = is_end_point

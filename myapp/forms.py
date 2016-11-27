@@ -7,10 +7,7 @@ from models import User
 
 class PlacesForm(FlaskForm):
     name = StringField("Name", [InputRequired("Please enter your name.")])
-    address = StringField("Adress", [InputRequired()])
-    city = StringField("City", [InputRequired()])
-    state = StringField("State", [InputRequired()])
-    zip = StringField("ZipCode", [InputRequired()])
+    Gaddress = StringField("Address", [InputRequired("Please enter your Address.")])
     submit = SubmitField("Send")
 
 
