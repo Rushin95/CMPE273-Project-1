@@ -29,4 +29,3 @@ MAIL_PASSWORD = 'SuperSecure2016Password'
 
 #Configure Googlge Key required to connect GoogleMaps API
 GOOGLEMAPS_KEY = 'AIzaSyBYsJ3ig9aPJCgfk45XqRj-ZfqreytYC-w'
-#                  'AIzaSyDTjklW141YfMMJh7BWWllamhPRsOD6LuU'

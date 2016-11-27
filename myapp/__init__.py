@@ -26,6 +26,7 @@ google_maps.init_app(app)
 
 @app.before_first_request
 def initialize_database():
+
     # Create DataBase and Tablets if not exist
     engine = create_engine(app.config['DB_URI'])
     if not database_exists(engine.url):

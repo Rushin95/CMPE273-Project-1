@@ -34,6 +34,7 @@ def faq():
 @app.route('/places', methods=['GET', 'POST'])
 def places():
     form = PlacesForm()
+
     # Create a User by default
     if not User.query.get(1):
         newuser = User("", "", "", "")
@@ -90,7 +91,6 @@ def places():
                     style="width:400px;height:400px;margin:50;", markers=my_markers, zoom=9)
         # initial GET use render_template
         return render_template('places.html', title='Places', form=form, mymap=mymap)
-
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():

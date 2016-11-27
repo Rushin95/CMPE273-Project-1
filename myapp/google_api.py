@@ -39,6 +39,7 @@ class GoogleAPI(object):
         self.lat = location['lat']
         self.lng = location['lng']
         coordinate = { 'lat': self.lat, 'lng': self.lng }
+        #print(coordinate)
         self.addDB()
         return coordinate
 
