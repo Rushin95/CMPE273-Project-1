@@ -11,6 +11,40 @@ from myapp import app, mail, db     #import variables created in __init__.py
 def index():
     return render_template('home.html', title='Home')
 
+@app.route('/addplaces',methods=['GET'])
+def addplaces():
+    x=0
+    jsonarray=[]
+    dict={}
+    dict2={}
+
+    Query=Location.query.all()
+    length=len(Query)
+    print length
+    for x in range(length):
+        print jsonarray
+        dict['uid']=Query[x].id
+        dict['address']=Query[x].address
+        dict['city']=Query[x].city
+        dict['state']=Query[x].state
+        dict['zip']=Query[x].zip
+        jsonarray.append(dict.copy())
+    return render_template('addplaces.html',data=jsonarray)
+
+@app.route('/deleteaddress',methods=['GET', 'POST','Delete'])
+def deleteadd():
+    uid=request.form.get('x')
+    print uid
+    Delete_data=Location.query.filter_by(id=uid).first()
+    endpt=Delete_data.is_end_point
+    if(endpt==1):
+        flash('Cannot Delete End Points')
+        return redirect('/addplaces')
+    else:
+        db.session.delete(Delete_data)
+        db.session.commit()
+        return redirect('/addplaces')
+
 @app.route('/about')
 def about():
     fake_user = {'nickname': 'Juancho'}
@@ -59,6 +93,8 @@ def places():
         if form.validate():
             #print form.Gaddress.data
             data = [x.strip() for x in form.Gaddress.data.split(',')]
+            test=form.Endpoint.data
+            print test
             #If invalid Address Format
             if len(data) != 5:
                 flash('Invalid Address format. Allowed Format: Street Address, City, State, Country, Zipcode')
