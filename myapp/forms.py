@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import TextAreaField, SubmitField, BooleanField, StringField, PasswordField
+from wtforms import TextAreaField, SubmitField, BooleanField, StringField, PasswordField,SelectField
+from flask_wtf import Form
 from wtforms.validators import *     #so you call validators directly, instead of using validators.blahblah
 
 from models import User
@@ -8,6 +9,7 @@ from models import User
 class PlacesForm(FlaskForm):
     name = StringField("Name", [InputRequired("Please enter your name.")])
     Gaddress = StringField("Address", [InputRequired("Please enter your Address.")])
+    Endpoint = SelectField('End Point', choices = [('1', 'Yes'),('0', 'No')])
     submit = SubmitField("Send")
 
 

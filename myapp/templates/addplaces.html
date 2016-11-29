@@ -1,0 +1,44 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <title>Uber</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/Content.css') }}">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+        function test(){
+        alert('hello');
+        $("#new").children("input:checked").map(function() {
+             value=this.value
+             alert(value);
+             $('#new').load("deleteaddress",{"x":value})
+            });
+        }
+    </script>
+    </head>
+ <body>
+{% extends "layout.html" %}
+
+{% block content %}
+<form>
+
+   <div class="form-group" id="new">
+
+              <tr>
+               <th>Address</th>
+              </tr><br>
+
+             {% for Q in data %}
+                <tr><td><input type="checkbox" id="pck" value="{{Q.uid}}"><strong>{{ Q.address}}&nbsp;{{Q.city}} {{Q.state}}{{Q.zip}}</strong><br></td></tr>
+            {% endfor %}
+
+       </div>
+
+    <div class="field col-md-6 col-md-offset-5" >
+            <input type="submit" value="Delete" class="btn btn-success" id="button" onclick="test()">
+          </div>
+    </form>
+{% endblock %}
+</body>
+</html>
