@@ -14,7 +14,11 @@
             {{ form.Gaddress }}<br><br>
 
             {{ form.Endpoint.label}}
-            {{form.Endpoint}}<br><br>
+            {% if end_points < 2 %}          <!--If there are two end_points disabled select on form -->
+                {{ form.Endpoint }}<br><br>
+            {% else %}
+                {{ form.Endpoint(disabled=True) }}<br><br>
+            {% endif %}
 
             {{ form.submit }}
         </form>

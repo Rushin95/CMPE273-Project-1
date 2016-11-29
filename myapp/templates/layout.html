@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <!--<script src="../static/js/mycode.js"></script> -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBYsJ3ig9aPJCgfk45XqRj-ZfqreytYC-w&libraries=places" async></script>
 </head>
 <body>
     <header>
@@ -37,6 +36,6 @@
         {% block content %}
         {% endblock %}
     </div>
-
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBYsJ3ig9aPJCgfk45XqRj-ZfqreytYC-w&libraries=places"></script>
 </body>
 </html>

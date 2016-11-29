@@ -78,6 +78,7 @@ def places():
     my_markers = { icons.dots.green: [], icons.dots.red: [] }
 
     # Import markers from Locations on DB
+    end_points = 0
     locations = Location.query.all()
     for loc in locations:
         lat = loc.lat
@@ -86,24 +87,28 @@ def places():
         point = (lat, lng, point_info)
         if(loc.is_end_point):
             my_markers[icons.dots.red].append(point)
+            end_points+=1
         else:
             my_markers[icons.dots.green].append(point)
 
-    if request.method == 'POST':        ##capture the form field data and check if it's valid
+    if request.method == 'POST':        #capture the form field data and check if it's valid
         if form.validate():
-            #print form.Gaddress.data
+            #Check if locations is an end_point
+            end_point = False
+            if(form.Endpoint.data == "1"):
+                end_point = True
+
+            #Get the Address from TextBox
             data = [x.strip() for x in form.Gaddress.data.split(',')]
-            test=form.Endpoint.data
-            print test
             #If invalid Address Format
             if len(data) != 5:
                 flash('Invalid Address format. Allowed Format: Street Address, City, State, Country, Zipcode')
                 mymap = Map(identifier="mymap", varname="mymap", lat=app.config['LAT'], lng=app.config['LNG'],
                             style="width:400px;height:400px;margin:50;", markers=my_markers, zoom=9)
-                return render_template('places.html', title='Places', form=form, mymap=mymap)
+                return render_template('places.html', title='Places', form=form, mymap=mymap, end_points=end_points)
 
             #Get latitude and longitude and Store point into the DB
-            obj = GoogleAPI(form.name.data, data[0], data[1], data[2], data[4], False)
+            obj = GoogleAPI(form.name.data, data[0], data[1], data[2], data[4], end_point)
             coordinate = obj.get_coordinates()
 
             #Add point to the map
@@ -118,7 +123,7 @@ def places():
             mymap = Map(identifier="mymap", varname="mymap", lat=app.config['LAT'], lng=app.config['LNG'],
                         style="width:400px;height:400px;margin:50;", markers=my_markers, zoom=9)
             # initial GET or INVALID form use render_template
-            return render_template('places.html', title='Places', form=form, mymap=mymap)
+            return render_template('places.html', title='Places', form=form, mymap=mymap, end_points=end_points)
 
     elif request.method == 'GET':       # else, form should be retrieved and loaded in browser
         # Create Map after have the markers defined. Cuase it put markers only when create map object
@@ -126,7 +131,7 @@ def places():
         mymap = Map(identifier="mymap", varname="mymap", lat=app.config['LAT'], lng=app.config['LNG'],
                     style="width:400px;height:400px;margin:50;", markers=my_markers, zoom=9)
         # initial GET use render_template
-        return render_template('places.html', title='Places', form=form, mymap=mymap)
+        return render_template('places.html', title='Places', form=form, mymap=mymap, end_points=end_points)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():

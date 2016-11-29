@@ -9,7 +9,7 @@ from models import User
 class PlacesForm(FlaskForm):
     name = StringField("Name", [InputRequired("Please enter your name.")])
     Gaddress = StringField("Address", [InputRequired("Please enter your Address.")])
-    Endpoint = SelectField('End Point', choices = [('1', 'Yes'),('0', 'No')])
+    Endpoint = SelectField('End Point', choices = [('0', 'No'), ('1', 'Yes')], default="0")
     submit = SubmitField("Send")
 
 
