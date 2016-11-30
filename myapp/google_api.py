@@ -44,6 +44,6 @@ class GoogleAPI(object):
 
     def addDB(self):
         newLocation = Location(self.user_id, self.name, self.address, self.city, self.state, self.zip, self.lat, self.lng, self.is_end_point)
-        self.id = newLocation.id
         db.session.add(newLocation)
         db.session.commit()
+        self.id = newLocation.id

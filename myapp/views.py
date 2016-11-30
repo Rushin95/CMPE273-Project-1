@@ -1,4 +1,4 @@
-from flask import render_template, redirect, request, flash, url_for, json
+from flask import render_template, redirect, request, flash, url_for, json, make_response
 from flask_mail import Message
 from flask_googlemaps import Map, icons
 
@@ -164,18 +164,88 @@ def signup():
 #=========================================
 #RESTful
 @app.route('/locations', methods=['POST'])
-def locations():
+def locations_POST():
     if request.method == 'POST':
+        # Create a User by default
+        if not User.query.get(1):
+            newuser = User("", "", "", "")
+            db.session.add(newuser)
+            db.session.commit()
+
         # Get the data from Request Body
         request_data = json.loads(request.data)
 
-        # Get the expense's information from Request Body
-        location_name = request_data['name']
-        location_address = request_data['address']
-        location_city = request_data['city']
-        location_state = request_data['state']
-        location_zip = request_data['zip']
-        location_type = 0  #by default
+        location_type = 0  #by default=0
+        # Get latitude and longitude and Store point into the DB
+        location = GoogleAPI(request_data['name'], request_data['address'], request_data['city'], request_data['state'], request_data['zip'], location_type)
 
-        obj = GoogleAPI(location_name, location_address, location_city, location_state, location_zip, location_type)
-        coordinate = obj.get_coordinates()
+        # Create the response's data
+        data = {
+            "id": str(location.id),
+            "name": location.name,
+            "address": location.address,
+            "city": location.city,
+            "state": location.state,
+            "zip": location.zip,
+            "coordinate": {
+                "lat": location.lat,
+                "lng": location.lng
+            }
+        }
+        # Creates the response
+        return make_response(json.dumps(data), 201)
+
+
+@app.route('/locations/<location_id>', methods=['GET'])
+def locations_GET(location_id):
+    if request.method == 'GET':
+        location = Location.query.get(location_id)
+        if location is not None:
+            #Create the response's data from DB
+            data = {
+                "id": str(location.id),
+                "name": location.name,
+                "address": location.address,
+                "city": location.city,
+                "state": location.state,
+                "zip": location.zip,
+                "coordinate": {
+                    "lat": location.lat,
+                    "lng": location.lng
+                }
+            }
+            return make_response(json.dumps(data), 200)
+        else:
+            data = ""
+            return make_response(json.dumps(data), 404)
+
+@app.route('/locations/<location_id>', methods=['PUT'])
+def locations_PUT(location_id):
+    if request.method == 'PUT':
+        # Get the data from Request Body
+        request_data = json.loads(request.data)
+
+        if (not request_data['name']):
+            print('Please enter <name>', 'error')
+        else:
+            location = Location.query.get(location_id)
+            if location is not None:
+                location.name = request_data['name']
+                db.session.commit()
+
+            # Creates the response
+            data = ""
+            return make_response(json.dumps(data), 202)
+
+
+@app.route('/locations/<location_id>', methods=['DELETE'])
+def locations_DELETE(location_id):
+    if request.method == 'DELETE':
+        location = Location.query.get(location_id)
+        if location is not None:
+            db.session.delete(location)
+            db.session.commit()
+
+        # Creates the response
+        data = ""
+        return make_response(json.dumps(data), 204)
