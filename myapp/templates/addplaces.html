@@ -4,41 +4,61 @@
     <title>Uber</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/Content.css') }}">
    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/Content.css') }}">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+   <script>
         function test(){
-        alert('hello');
-        $("#new").children("input:checked").map(function() {
+        $("td").children("input:checked").map(function() {
              value=this.value
-             alert(value);
-             $('#new').load("deleteaddress",{"x":value})
+             $('#test').load("deleteaddress",{"x":value})
             });
         }
     </script>
     </head>
- <body>
-{% extends "layout.html" %}
+ <body id="test">
+ <header>
+        <div class="container">
+            <h1 class="logo">Flask App</h1>
+            <nav>
+                <strong>
+                    <ul class="menu">
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                        <li><a href="{{ url_for('places') }}">Places</a></li>
+                        <li><a href="{{ url_for('about') }}">About</a></li>
+                        <li><a href="{{ url_for('faq') }}">FAQ</a></li>
+                        <li><a href="{{ url_for('addplaces') }}">Trip Modifications</a></li>
+                    </ul>
+                </strong>
+            </nav>
+        </div>
+    </header>
+            {% if length > 0 %}
+                    <form>
+                    <h1 align="Center">Location Entries</h1>
+                    <table class="table table-striped">
+                        <th>Address</th>
+                        <th>Type</th>
+                        <div id="new">
+                            {% for Q in data %}
+                            <tr align="center">
+                            <td align="Left"><input type="checkbox" id="pck" value="{{Q.uid}}"><strong>{{ Q.address}}&nbsp;{{Q.city}} {{Q.state}} {{Q.zip}}</strong></td>
+                            <td align="Left"><strong>{% if Q.is_end_point==0 %} Other {% elif Q.is_end_point==1 %} Start {% else %} End {% endif %}</strong></td>
+                            <tr>
+                             {% endfor %}
+                        </div>
+                    </table>
 
-{% block content %}
-<form>
+                             <button type="button" class="btn btn-default" onclick="test()" style="margin-left:auto;margin-right:auto;display:block;margin-top:5%;margin-bottom:0%">Delete</button>
 
-   <div class="form-group" id="new">
+                        </form>
 
-              <tr>
-               <th>Address</th>
-              </tr><br>
-
-             {% for Q in data %}
-                <tr><td><input type="checkbox" id="pck" value="{{Q.uid}}"><strong>{{ Q.address}}&nbsp;{{Q.city}} {{Q.state}}{{Q.zip}}</strong><br></td></tr>
-            {% endfor %}
-
-       </div>
-
-    <div class="field col-md-6 col-md-offset-5" >
-            <input type="submit" value="Delete" class="btn btn-success" id="button" onclick="test()">
-          </div>
-    </form>
-{% endblock %}
-</body>
+            {% else %}
+                            <h1 id="Heading" align="center">No Address added currently</h1>
+            {% endif %}
+ </body>
 </html>
