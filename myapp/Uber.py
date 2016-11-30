@@ -21,8 +21,50 @@ class Uber(ServiceBase):
             'Accept-Language': 'en_US',
             'Content-Type': 'application/json',
         }
-        coordsA = {'lat':'37.334762', 'lon':'-121.907705'}
+        dic={'A':{'lat':'37.334762', 'lon':'-121.907705'},'C1':{'lat':'37.335532', 'lon':'-121.885476'},'C':{'lat':'37.413477', 'lon':'-121.898105'},'D':{'lat':'37.383757', 'lon':'-121.886364'}}
+        maxLen=len(dic)
+        counter=0
+        add1=0
+        add2=0
+
         URL="https://api.uber.com/v1.2/estimates/price"
+        #Calculation for uberX
+        while counter<3:
+            sLat=dic.values()[counter].get('lat')
+            sLon=dic.values()[counter].get('lon')
+            eLat=dic.values()[counter+1].get('lat')
+            eLon=dic.values()[counter+1].get('lon')
+            paraX={'start_latitude':sLat,'start_longitude':sLon,'end_latitude':eLat,'end_longitude':eLon}
+            rX = requests.get(URL,params=paraX,headers=headers)
+            dataX=rX.json()
+            intX=dataX["prices"][1]["estimate"]
+            addX=intX.split("$")[-1]
+            a1X=addX.split("-")[0]#First Value
+            add1=add1+int(a1X)
+            a2X=addX.split("-")[-1]#Second Value
+            add2=add2+int(a2X)
+            counter +=1
+        
+        counter=0
+        add1XL=0
+        add2XL=0
+        #Calculation for uberXL
+        while counter<3:
+            sLat=dic.values()[counter].get('lat')
+            sLon=dic.values()[counter].get('lon')
+            eLat=dic.values()[counter+1].get('lat')
+            eLon=dic.values()[counter+1].get('lon')
+            paraX={'start_latitude':sLat,'start_longitude':sLon,'end_latitude':eLat,'end_longitude':eLon}
+            rX = requests.get(URL,params=paraX,headers=headers)
+            dataX=rX.json()
+            intX=dataX["prices"][2]["estimate"]
+            addX=intX.split("$")[-1]
+            a1X=addX.split("-")[0]#First Value
+            add1XL=add1XL+int(a1X)
+            a2X=addX.split("-")[-1]#Second Value
+            add2XL=add1XL+int(a2X)
+            counter +=1
+        '''
         para1 = {'start_latitude':'37.334762','start_longitude':'-121.907705','end_latitude':'37.335532','end_longitude':'-121.885476'}
         para2=  {'start_latitude':'37.335532','start_longitude':'-121.885476','end_latitude':'37.413477','end_longitude':'-121.898105'}
         para3=  {'start_latitude':'37.413477','start_longitude':'-121.898105','end_latitude':'37.383757','end_longitude':'-121.886364'}
@@ -52,9 +94,11 @@ class Uber(ServiceBase):
         c2=int(c2)
         first=a1+b1+c1
         second=a2+b2+c2
-        print1= "Total Estimated Price :"+str(first)+","+str(second)
-        #return (coordsA.get('lat'))
-        return (print1)
+        '''
+        print1= "Total Estimated Price for uberX :"+str(add1)+","+str(add2)
+        print2= "Total Estimated Price for uberXL :"+str(add1XL)+","+str(add2XL)
+        return print1,print2
+
 
 if __name__ == '__main__':
     # Python daemon boilerplate
