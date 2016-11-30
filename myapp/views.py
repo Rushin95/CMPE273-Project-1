@@ -107,13 +107,11 @@ def places():
                 return render_template('places.html', title='Places', form=form, mymap=mymap, end_points=end_points)
 
             #Get latitude and longitude and Store point into the DB
-            print form.Endpoint.data
-            obj = GoogleAPI(form.name.data, data[0], data[1], data[2], data[4], int(form.Endpoint.data))
-            coordinate = obj.get_coordinates()
+            location = GoogleAPI(form.name.data, data[0], data[1], data[2], data[4], int(form.Endpoint.data))
 
             #Add point to the map
-            point_info = data[0] + ", " + data[1] + ", " + data[2] + ", " + data[4]
-            point = (coordinate.get('lat'), coordinate.get('lng'), point_info)
+            point_info = location.address + ", " + location.city + ", " + location.state + ", " + location.zip
+            point = (location.lat, location.lng, point_info)
             my_markers[icons.dots.green].append(point)
 
             # After a Valid Form is fill ALWAYS USE redirect
@@ -177,3 +175,7 @@ def locations():
         location_city = request_data['city']
         location_state = request_data['state']
         location_zip = request_data['zip']
+        location_type = 0  #by default
+
+        obj = GoogleAPI(location_name, location_address, location_city, location_state, location_zip, location_type)
+        coordinate = obj.get_coordinates()
