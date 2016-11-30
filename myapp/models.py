@@ -32,7 +32,7 @@ class Location(db.Model):
     zip =  db.Column(db.String(20))
     lat = db.Column(db.Float)
     lng = db.Column(db.Float)
-    is_end_point = db.Column(db.Boolean, unique=False, default=False)
+    is_end_point = db.Column(db.Integer, unique=False, default=0)
 
     def __init__(self, user_id, name, address, city, state,zip, lat, lng, is_end_point):
         self.user_id = user_id

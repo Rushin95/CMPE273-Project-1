@@ -9,8 +9,8 @@ from models import User
 class PlacesForm(FlaskForm):
     name = StringField("Name", [InputRequired("Please enter your name.")])
     Gaddress = StringField("Address", [InputRequired("Please enter your Address.")])
-    Endpoint = SelectField('End Point', choices = [('0', 'No'), ('1', 'Yes')], default="0")
-    submit = SubmitField("Send")
+    Endpoint = SelectField('Type', choices = [('0', 'Other'), ('1', 'Start'), ('2', 'End')], default='0')
+    submit = SubmitField("Add Place")
 
 
 class SignupForm(FlaskForm):

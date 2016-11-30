@@ -1,4 +1,4 @@
-from flask import render_template, redirect, request, flash, url_for
+from flask import render_template, redirect, request, flash, url_for, json
 from flask_mail import Message
 from flask_googlemaps import Map, icons
 
@@ -85,7 +85,11 @@ def places():
         lng = loc.lng
         point_info = loc.address + ", " + loc.city + ", " + loc.state + ", " + unicode(loc.zip)
         point = (lat, lng, point_info)
-        if(loc.is_end_point):
+        if(loc.is_end_point==1 or loc.is_end_point==2):  #point is at start or end
+            if loc.is_end_point==1:
+                form.Endpoint.choices = [('0', 'Other'), ('2', 'End')]
+            elif loc.is_end_point==2:
+                form.Endpoint.choices = [('0', 'Other'), ('1', 'Start')]
             my_markers[icons.dots.red].append(point)
             end_points+=1
         else:
@@ -93,11 +97,6 @@ def places():
 
     if request.method == 'POST':        #capture the form field data and check if it's valid
         if form.validate():
-            #Check if locations is an end_point
-            end_point = False
-            if(form.Endpoint.data == "1"):
-                end_point = True
-
             #Get the Address from TextBox
             data = [x.strip() for x in form.Gaddress.data.split(',')]
             #If invalid Address Format
@@ -108,7 +107,8 @@ def places():
                 return render_template('places.html', title='Places', form=form, mymap=mymap, end_points=end_points)
 
             #Get latitude and longitude and Store point into the DB
-            obj = GoogleAPI(form.name.data, data[0], data[1], data[2], data[4], end_point)
+            print form.Endpoint.data
+            obj = GoogleAPI(form.name.data, data[0], data[1], data[2], data[4], int(form.Endpoint.data))
             coordinate = obj.get_coordinates()
 
             #Add point to the map
@@ -161,3 +161,19 @@ def signup():
 
     elif request.method == 'GET':
         return render_template('signup.html', title='Sign Up', form=form)
+
+
+#=========================================
+#RESTful
+@app.route('/locations', methods=['POST'])
+def locations():
+    if request.method == 'POST':
+        # Get the data from Request Body
+        request_data = json.loads(request.data)
+
+        # Get the expense's information from Request Body
+        location_name = request_data['name']
+        location_address = request_data['address']
+        location_city = request_data['city']
+        location_state = request_data['state']
+        location_zip = request_data['zip']
