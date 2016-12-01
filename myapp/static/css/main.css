@@ -8,7 +8,7 @@ body {
 /*
  * Create dark grey header with a white logo
  */
-  
+
 header {
   background-color: #2B2B2B;
   height: 35px;
@@ -24,7 +24,7 @@ header h1.logo {
   text-transform: uppercase;
   float: left;
 }
- 
+
 header h1.logo:hover {
   color: #fff;
   text-decoration: none;
@@ -62,6 +62,8 @@ h3 {
   letter-spacing: -1px;
   color: #999;
 }
+
+
 
 /*
  * Display navigation links inline

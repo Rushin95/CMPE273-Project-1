@@ -28,16 +28,16 @@ def addplaces():
         dict['city']=Query[x].city
         dict['state']=Query[x].state
         dict['zip']=Query[x].zip
+        dict['is_end_point']=Query[x].is_end_point
         jsonarray.append(dict.copy())
-    return render_template('addplaces.html',data=jsonarray)
+    return render_template('addplaces.html',data=jsonarray,length=length)
 
 @app.route('/deleteaddress',methods=['GET', 'POST','Delete'])
 def deleteadd():
     uid=request.form.get('x')
-    print uid
     Delete_data=Location.query.filter_by(id=uid).first()
     endpt=Delete_data.is_end_point
-    if(endpt==1):
+    if(endpt==1 or endpt==2):
         flash('Cannot Delete End Points')
         return redirect('/addplaces')
     else:
