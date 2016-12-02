@@ -10,12 +10,6 @@ from spyne.service import ServiceBase
 
 
 class Lyft(ServiceBase):
-    i = 0
-    total_min_cost = 0.0
-    total_max_cost = 0.0
-    ride = 0
-    global l
-    locationlist = []
 
     # get total cost from string given as parameter
     # SAMPLE CALL : 127.0.0.1:5000/gettotalcost?strng=3,37.7772,-122.4233,37.7972,-122.4533,37.7772,-122.4233
@@ -149,46 +143,6 @@ class Lyft(ServiceBase):
         yield "For lyft_plus:",lyft_plus
         yield "For lyft_premier:",lyft_premier
         yield 'Cheapest:', cheapest
-
-    # set source location
-    # @srpc(str,float, float, _returns=unicode)
-    # def setsource(self,sourcelat,sourcelon):
-
-        # payload = {'lat': sourcelat, 'lng': sourcelon}
-        # headers = {
-        #     'Authorization': 'Bearer gAAAAABYOh2rXUfRCrbLM5kt_kICcQvAuyefz_9pJsgGhHQLhKnu3idO-pEgZN6xBWRqXyy0vaOFPse2Rk4i26RCUhKOBvYvnXAW17OwAGpmXdEzG_38O-sYbz9zd_OHdswBrRXFGKy9lBflP0eVWLP3rsCQJd1JuBFJdks2AfawYNAviW1wB2s=',
-        #     'Accept-Language': 'en_US',
-        #     'Content-Type': 'application/json',
-        # }
-        #
-        # source = requests.get(
-        #     'https://api.lyft.com/v1/setsource?',
-        #     headers=headers, params=payload)
-        # locationlist.append((sourcelat, sourcelon))
-        # yield source.json()
-        # yield "source:",locationlist[0]
-
-        # set destination location
-    # @srpc(str,float, float, _returns=unicode)
-    # def setdestination(self,destinationlat, destinationlon):
-
-        # payload = {'lat': destinationlon, 'lng': destinationlon}
-        # headers = {
-        #     'Authorization': 'Bearer gAAAAABYOh2rXUfRCrbLM5kt_kICcQvAuyefz_9pJsgGhHQLhKnu3idO-pEgZN6xBWRqXyy0vaOFPse2Rk4i26RCUhKOBvYvnXAW17OwAGpmXdEzG_38O-sYbz9zd_OHdswBrRXFGKy9lBflP0eVWLP3rsCQJd1JuBFJdks2AfawYNAviW1wB2s=',
-        #     'Accept-Language': 'en_US',
-        #     'Content-Type': 'application/json',
-        # }
-        #
-        # source = requests.get(
-        #     'https://api.lyft.com/v1/setsource?',
-        #     headers=headers, params=payload)
-
-        # set destination coordinates as last element of array
-        # locationlist.append((destinationlat, destinationlon))
-        # l = len(locationlist)
-        # yield source.json()
-        # yield "num:",l-1, " destination:", locationlist[l-1]
-        # yield locationlist[l - 1]
 
     # getting details about type of rides for a static location
     @srpc(str,_returns=unicode)
