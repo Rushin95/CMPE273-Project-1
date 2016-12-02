@@ -7,6 +7,18 @@ app = Flask(__name__)
 
 @app.route("/",methods=['GET'])
 def Uber():
+    AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4
+
+    URL="https://maps.googleapis.com/maps/api/directions/json"
+    places={"optimize:true","Barossa+Valley,SA","Clare,SA","Connawarra,SA","McLaren+Vale,SA"}
+    origin1={"Adelaide,SA"}
+    destination1={"Adelaide,SA"}
+    key1=AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4
+
+    req=requests.get(URL,origin=origin1,destination=destination1,waypoints=places,key=key1)
+    d3=req.json()
+    way=d3["routes"]["waypoint_order"]
+    return way
 
     headers = {
             'Authorization': 'Token aTS7ifSRpVChp5-VsDkVxTrlZyUSA9g2qdH81E2k',
@@ -59,7 +71,7 @@ def Uber():
     #t1=str(add2XL)
     print1= "Total Estimated Price for uberX : "+"$"+str(add1)+" to "+"$"+str(add2)
     print2= "Total Estimated Price for uberXL : "+"$"+str(add1XL)+" to "+"$"+str(add2XL)
-    return print1+"\n"+print2
+    #return print1+"\n"+print2
 
 if __name__=='__main__':
     app.run(debug=True,host='0.0.0.0',port=3000)
