@@ -4,11 +4,10 @@ from flask_googlemaps import Map, icons
 from google_api import *
 from forms import *
 from myapp import app, mail, db
-def Lyft():
+def Lyft(Query):
     jsonarray = []
     dictstart = {}
     dictend={}
-    Query = Location.query.all()
     length = len(Query)
     print length
     for x in range(length):
@@ -190,4 +189,5 @@ def Lyft():
     print "For lyft_plus:", lyft_plus
     print "For lyft_premier:", lyft_premier
     print 'Cheapest:', cheapest
-    return cheapest
+    all={'lyft':lyft,'lyft_line':lyft_line,'lyft_plus':lyft_plus,'lyft_premier':lyft_premier}
+    return all

@@ -17,8 +17,15 @@ def index():
 
 @app.route("/lyft", methods=['GET'])
 def Lyft():
-    test=TestLyft.Lyft()
-    return str(test)
+    Query = Location.query.all()
+    length=len(Query)
+    if(length==0):
+        return render_template('Results.html',length=length)
+    else:
+        test=TestLyft.Lyft(Query)
+        length=len(test)
+        print test
+        return render_template('Results.html',str=test,length=length)
 
 ########################
 @app.route("/uber", methods=['GET'])

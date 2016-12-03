@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+<style>#rectangle{
+    width:300px;
+    height:300px;
+    background:grey;
+    border-radius: 25px;
+    opacity: 0.5;
+    text-align:center;
+    padding-left: 50px;
+</style>
+ <style>
+       #map {
+        height: 300px;
+        width: 100%;
+       }
+ </style>
+ <style>
+ .paddingBetweenCols td
+{
+    padding:0 15px 0 15px;
+}
+</style>
+</head>
+<body>
+<header>
+        <div class="container">
+            <h1 class="logo">Flask App</h1>
+            <nav>
+                <strong>
+                    <ul class="menu">
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+                        <li><a href="{{ url_for('places') }}">Places</a></li>
+                        <li><a href="{{ url_for('about') }}">About</a></li>
+                        <li><a href="{{ url_for('faq') }}">FAQ</a></li>
+                        <li><a href="{{ url_for('addplaces') }}">Trip Modifications</a></li>
+                    </ul>
+                </strong>
+            </nav>
+        </div>
+    </header>
+
+<div id="map"></div><br>
+{% if length > 0 %}
+     <table class="paddingBetweenCols">
+         <td></td>
+    {% for key in str.iteritems() %}
+         {% if key[0] =='lyft' %}
+            <td><div id="rectangle">
+                  <div class="content">
+                      {{key[1].distance}}
+                  </div>
+             </div></td>
+        {% elif key[0] =='lyft_premier'%}
+                <td><div id="rectangle">
+                  <div class="content">
+                      {{key[1].distance}}
+                  </div>
+             </div></td>
+        {% elif key[0] =='lyft_line'%}
+                <td><div id="rectangle">
+                  <div class="content">
+                      {{key[1].distance}}
+                  </div>
+             </div></td>
+        {% elif key[0] =='lyft_plus'%}
+               <td><div id="rectangle">
+                  <div class="content">
+                      {{key[1].distance}}
+                  </div>
+             </div></td>
+         {% endif %}
+    {% endfor %}
+    </tr>
+    </table>
+{% else %}
+    <h1>NO address</h1>
+{% endif %}
+</body>
+<script>
+      function initMap() {
+        var uluru = {lat: -25.363, lng: 131.044};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: uluru
+        });
+        var marker = new google.maps.Marker({
+          position: uluru,
+          map: map
+        });
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBYsJ3ig9aPJCgfk45XqRj-ZfqreytYC-w&callback=initMap">
+    </script>
+</html>
