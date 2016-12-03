@@ -151,6 +151,16 @@ def Uber():
     printValue2 = "Total Estimated Price : " + "$" + str(add1XL) + " to " + "$" + str(add2XL)
     printTime2 = "Total Estimated time in minutes : " + str(float(addTime2 / 60))
     printDistance2 = "Total Distance in Miles : " + str(addDistance2)
-
+    uberX={}
+    uberXL={}
     print1 = printst1 + "\n" + printValue1 + "\n" + printTime1 + "\n" + printDistance1 + "\n" + "\n" + printst2 + "\n" + printValue2 + "\n" + printTime2 + "\n" + printDistance2
-    return print1
+    uberX['Price']=str((add1+add2)/2)
+    uberX['Time']=str(float(addTime1 / 60))
+    uberX['Miles']=str(addDistance1)
+    uberXL['Price']=str((add1XL+add2XL)/2)
+    uberXL['Time']=str(float(addTime2 / 60))
+    uberXL['Miles']=str(addDistance2)
+    final={'uberX':uberX,'uberXL':uberXL}
+    return final
+
+

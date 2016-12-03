@@ -13,7 +13,9 @@
     border-radius: 25px;
     opacity: 0.5;
     text-align:center;
-    padding-left: 50px;
+    padding-top: 50px;
+    font-size: 250%;
+
 </style>
  <style>
        #map {
@@ -24,8 +26,11 @@
  <style>
  .paddingBetweenCols td
 {
-    padding:0 15px 0 15px;
+    padding:10px 15px 10px 15px;
 }
+tr
+
+
 </style>
 </head>
 <body>
@@ -50,36 +55,68 @@
 <div id="map"></div><br>
 {% if length > 0 %}
      <table class="paddingBetweenCols">
+         <tr>
          <td></td>
-    {% for key in str.iteritems() %}
+    {% for key in lyft.iteritems() %}
          {% if key[0] =='lyft' %}
             <td><div id="rectangle">
                   <div class="content">
-                      {{key[1].distance}}
+                      <strong>{{key[0]}}</strong><br>
+                      {{key[1].max_cost}}
                   </div>
              </div></td>
         {% elif key[0] =='lyft_premier'%}
                 <td><div id="rectangle">
                   <div class="content">
-                      {{key[1].distance}}
+                      <strong>{{key[0]}}</strong><br>
+                      {{key[1].max_cost}}
                   </div>
              </div></td>
         {% elif key[0] =='lyft_line'%}
                 <td><div id="rectangle">
                   <div class="content">
-                      {{key[1].distance}}
+                      <strong>{{key[0]}}</strong><br>
+                      {{key[1].max_cost}}
                   </div>
              </div></td>
         {% elif key[0] =='lyft_plus'%}
                <td><div id="rectangle">
                   <div class="content">
-                      {{key[1].distance}}
+                      <strong>{{key[0]}}</strong><br>
+                      {{key[1].max_cost}}
                   </div>
              </div></td>
          {% endif %}
     {% endfor %}
     </tr>
-    </table>
+     <tr>
+       <td></td>
+      {% for key in uber.iteritems() %}
+         {% if key[0] =='uberX' %}
+            <td><div id="rectangle">
+                  <div class="content">
+                      <strong>{{key[0]}}</strong><br>
+                      {{key[1].Price}}$<br>
+                      {% if key[0] ==min %}
+                        {{"Cheapest Ride"}}
+                      {% endif%}
+
+                  </div>
+             </div></td>
+         {% else %}
+                <td><div id="rectangle">
+                  <div class="content">
+                      <strong>{{key[0]}}</strong><br>
+                      {{key[1].Price}}$<br>
+                      {% if key[0] ==min %}
+                        {{"Cheapest Ride"}}
+                      {% endif%}
+                  </div>
+             </div></td>
+         {% endif %}
+         {% endfor %}
+     </tr>
+     </table>
 {% else %}
     <h1>NO address</h1>
 {% endif %}

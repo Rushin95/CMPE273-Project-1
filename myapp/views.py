@@ -22,10 +22,14 @@ def Lyft():
     if(length==0):
         return render_template('Results.html',length=length)
     else:
-        test=TestLyft.Lyft(Query)
-        length=len(test)
-        print test
-        return render_template('Results.html',str=test,length=length)
+        lyftdata=TestLyft.Lyft(Query)
+        length=len(lyftdata)
+        uberdata=testUber.Uber()
+        print lyftdata
+        print "###############"
+        print "IN Views Functions"
+        minuber=min(uberdata, key=uberdata.get)
+        return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber)
 
 ########################
 @app.route("/uber", methods=['GET'])
