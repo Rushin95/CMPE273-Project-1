@@ -15,6 +15,7 @@
     text-align:center;
     padding-top: 50px;
     font-size: 250%;
+    box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 1.2), 0 8px 22px 0 rgba(0, 0, 0, 0.40);
 
 </style>
  <style>
@@ -28,9 +29,6 @@
 {
     padding:10px 15px 10px 15px;
 }
-tr
-
-
 </style>
 </head>
 <body>
@@ -62,28 +60,28 @@ tr
             <td><div id="rectangle">
                   <div class="content">
                       <strong>{{key[0]}}</strong><br>
-                      {{key[1].max_cost}}
+                      {{key[1].max_cost}}$
                   </div>
              </div></td>
         {% elif key[0] =='lyft_premier'%}
                 <td><div id="rectangle">
                   <div class="content">
                       <strong>{{key[0]}}</strong><br>
-                      {{key[1].max_cost}}
+                      {{key[1].max_cost}}$
                   </div>
              </div></td>
         {% elif key[0] =='lyft_line'%}
                 <td><div id="rectangle">
                   <div class="content">
                       <strong>{{key[0]}}</strong><br>
-                      {{key[1].max_cost}}
+                      {{key[1].max_cost}}$
                   </div>
              </div></td>
         {% elif key[0] =='lyft_plus'%}
                <td><div id="rectangle">
                   <div class="content">
                       <strong>{{key[0]}}</strong><br>
-                      {{key[1].max_cost}}
+                      {{key[1].max_cost}}$
                   </div>
              </div></td>
          {% endif %}
