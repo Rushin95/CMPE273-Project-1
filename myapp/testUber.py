@@ -7,7 +7,6 @@ from forms import *
 from myapp import app, mail, db
 
 def Uber():
-    x = 0
     jsonarray = []
     dictmid = {}
     dictstart = {}
@@ -160,7 +159,21 @@ def Uber():
     uberXL['Price']=str((add1XL+add2XL)/2)
     uberXL['Time']=str(float(addTime2 / 60))
     uberXL['Miles']=str(addDistance2)
-    final={'uberX':uberX,'uberXL':uberXL}
+
+    ########### Best Route ############
+    route={}
+    route[0]=(dictstart['Address'].split(","))[0:2]
+    print route
+    x=0
+    cnt=len(jsonarray)
+    while (cnt):
+        route[x+1]=(jsonarray[way[x]].split(","))[0:2]
+        x=x+1
+        cnt=cnt-1
+    route[len(jsonarray)+1]=(dictend['Address'].split(","))[0:2]
+    print  route
+
+    final={'uberX':uberX,'uberXL':uberXL,'Optimized Route':route}
     return final
 
 
