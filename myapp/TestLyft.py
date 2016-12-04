@@ -4,6 +4,8 @@ from flask_googlemaps import Map, icons
 from google_api import *
 from forms import *
 from myapp import app, mail, db
+from decimal import Decimal
+
 def Lyft(Query):
     jsonarray = []
     dictstart = {}
@@ -154,30 +156,42 @@ def Lyft(Query):
                 # yield lyft
 
             elif iteration["ride_type"] == "lyft_premier":
-                lyft_premier["min_cost"] = iteration["estimated_cost_cents_min"]
-                lyft_premier["max_cost"] = iteration["estimated_cost_cents_max"]
-                lyft_premier["time"] = iteration["estimated_duration_seconds"]
-                lyft_premier["distance"] = iteration["estimated_distance_miles"]
+                lyft_premier["min_cost"] += iteration["estimated_cost_cents_min"]
+                lyft_premier["max_cost"] += iteration["estimated_cost_cents_max"]
+                lyft_premier["time"] += iteration["estimated_duration_seconds"]
+                lyft_premier["distance"] += iteration["estimated_distance_miles"]
                 # yield lyft_premier
+
+    lyft_premier["min_cost"] = Decimal(lyft_premier["min_cost"]* 0.01).quantize(Decimal("0.01"))
+    lyft_line["min_cost"] = Decimal(lyft_line["min_cost"]* 0.01).quantize(Decimal("0.01"))
+    lyft["min_cost"] = Decimal(lyft["min_cost"]* 0.01).quantize(Decimal("0.01"))
+    lyft_plus["min_cost"] = Decimal(lyft_plus["min_cost"]* 0.01).quantize(Decimal("0.01"))
+
+    lyft_premier["max_cost"] = Decimal(lyft_premier["max_cost"]* 0.01).quantize(Decimal("0.01"))
+    lyft_line["max_cost"] = Decimal(lyft_line["max_cost"]* 0.01).quantize(Decimal("0.01"))
+    lyft["max_cost"] = Decimal(lyft["max_cost"]* 0.01).quantize(Decimal("0.01"))
+    lyft_plus["max_cost"] = Decimal(lyft_plus["max_cost"]* 0.01).quantize(Decimal("0.01"))
+
     cheapest['cost'] = lyft_line['min_cost']
-    if (lyft_premier['max_cost'] != 0 and lyft_premier['min_cost'] < cheapest['cost']):
+    if (lyft_premier['max_cost'] != 0.00 and lyft_premier['min_cost'] < cheapest['cost']):
         cheapest['cost'] = lyft_premier['min_cost']
         cheapest['time'] = lyft_premier['time']
         cheapest['distance'] = lyft_premier['distance']
         cheapest['type'] = lyft_premier['type']
 
-    if (lyft_plus['max_cost'] != 0 and lyft_plus['min_cost'] < cheapest['cost']):
+    if (lyft_plus['max_cost'] != 0.00 and lyft_plus['min_cost'] < cheapest['cost']):
         cheapest['cost'] = lyft_plus['min_cost']
         cheapest['time'] = lyft_plus['time']
         cheapest['distance'] = lyft_plus['distance']
         cheapest['type'] = lyft_plus['type']
-    if (lyft['max_cost'] != 0 and lyft['min_cost'] < cheapest['cost']):
+
+    if (lyft['max_cost'] != 0.00 and lyft['min_cost'] < cheapest['cost']):
         cheapest['cost'] = lyft['min_cost']
         cheapest['time'] = lyft['time']
         cheapest['distance'] = lyft['distance']
         cheapest['type'] = lyft['type']
 
-    if (lyft_line['min_cost'] != 0 and lyft_premier['min_cost'] < cheapest['cost']):
+    if (lyft_line['min_cost'] != 0.00 and lyft_line['min_cost'] <= cheapest['cost']):
         cheapest['cost'] = lyft_line['min_cost']
         cheapest['time'] = lyft_line['time']
         cheapest['distance'] = lyft_line['distance']
