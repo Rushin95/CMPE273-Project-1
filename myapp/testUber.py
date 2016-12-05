@@ -31,56 +31,62 @@ def Uber():
             endLng=Query[x].lng
             endDct = {"lat": endLat, "lon": endLng}
             print "dictend="+str(dictend)
+    if(len(jsonarray)!=0):
 
-    URL = "https://maps.googleapis.com/maps/api/directions/json"
-    origin1 = "origin=" + dictstart['Address']
-    destination1 = "&destination=" + dictend['Address']
-    dictmidlen=len(jsonarray)
-    print "destination"+destination1
-    print "source"+origin1
-    test=""
-    arr=[]
-    for y in range(dictmidlen):
-        test=test+"|"+jsonarray[y]
+        URL = "https://maps.googleapis.com/maps/api/directions/json"
+        origin1 = "origin=" + dictstart['Address']
+        destination1 = "&destination=" + dictend['Address']
+        dictmidlen=len(jsonarray)
+        print "destination"+destination1
+        print "source"+origin1
+        test=""
+        arr=[]
+        for y in range(dictmidlen):
+            test=test+"|"+jsonarray[y]
 
 
-    waypoints1 = "&waypoints=optimize:true" + test
-    key1 = "AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
-    para = origin1 + destination1 + waypoints1 + key1
-    req = requests.get(URL, params=para)
-    d3 = req.json()
-    way = d3["routes"][0]["waypoint_order"]
-    waylength=len(way)
-    fin=[]
-    latitude=[]
-    longitude=[]
-    for x in range(waylength):
-        Query=Location.query.filter_by(address=str(jsonarray[way[x]].split(",")[0])).first()
-        latitude.append(Query.lat)
-        longitude.append(Query.lng)
+        waypoints1 = "&waypoints=optimize:true" + test
+        key1 = "AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
+        para = origin1 + destination1 + waypoints1 + key1
+        req = requests.get(URL, params=para)
+        d3 = req.json()
+        way = d3["routes"][0]["waypoint_order"]
+        waylength=len(way)
+        fin=[]
+        latitude=[]
+        longitude=[]
+        for x in range(waylength):
+            Query=Location.query.filter_by(address=str(jsonarray[way[x]].split(",")[0])).first()
+            latitude.append(Query.lat)
+            longitude.append(Query.lng)
 
+        st1=[]
+        en=[]
+        print Location.query.filter_by(address=str(dictstart['Address'])).first()
+        startLoc={'lat':startLat,'lon':startLng}
+        st1.append(startLoc)
+        endLoc={'lat':endLat,'lon':endLng}
+        en.append(endLoc)
+        mid1={}
+        for x in range(waylength):
+            mid1[x]={'lat':latitude[x],'lon':longitude[x]}
+    else:
+        mid1={}
+
+    print("#######################################")
     headers = {
         'Authorization': 'Token aTS7ifSRpVChp5-VsDkVxTrlZyUSA9g2qdH81E2k',
         'Accept-Language': 'en_US',
         'Content-Type': 'application/json',
     }
-    st1=[]
-    en=[]
-    print Location.query.filter_by(address=str(dictstart['Address'])).first()
-    startLoc={'lat':startLat,'lon':startLng}
-    st1.append(startLoc)
-    endLoc={'lat':endLat,'lon':endLng}
-    en.append(endLoc)
-    mid1={}
-    for x in range(waylength):
-        mid1[x]={'lat':latitude[x],'lon':longitude[x]}
-    print("#######################################")
     midL={}
     midL[0]={"lat":startLat,"lon":startLng}
     for y in range(len(mid1)):
         midL[y+1]=mid1[y]
     vari=len(midL)
     midL[vari]={"lat": endLat, "lon": endLng}
+    if vari==0:
+        midL[1]={"lat": endLat, "lon": endLng}
     print midL
     print "mid Values"
     print midL
@@ -92,7 +98,7 @@ def Uber():
     add2 = 0
     addTime1 = 0
     addDistance1 = 0
-
+    print "Calculaion"
     URL = "https://api.uber.com/v1.2/estimates/price"
     # Calculation for uberX
     while counter < (maxLen - 1):
@@ -159,7 +165,7 @@ def Uber():
     uberXL['Price']=str((add1XL+add2XL)/2)
     uberXL['Time']=str(float(addTime2 / 60))
     uberXL['Miles']=str(addDistance2)
-
+    print("UberX :"+uberX['Price'])
     ########### Best Route ############
     route={}
     route[0]=(dictstart['Address'].split(","))[0:2]
@@ -171,9 +177,11 @@ def Uber():
         x=x+1
         cnt=cnt-1
     route[len(jsonarray)+1]=(dictend['Address'].split(","))[0:2]
-    print  route
+    print route
 
     final={'uberX':uberX,'uberXL':uberXL,'Optimized Route':route}
+    if vari==0:
+        final={'uberX':uberX,'uberXL':uberXL}
     return final
 
 
