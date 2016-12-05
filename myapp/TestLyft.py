@@ -157,4 +157,5 @@ def Lyft(Query):
     print "For lyft_plus:", lyft_plus
     print "For lyft_premier:", lyft_premier
     all={'lyft':lyft,'lyft_plus':lyft_plus,'lyft_premier':lyft_premier}
+    print all
     return all

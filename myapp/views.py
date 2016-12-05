@@ -32,7 +32,7 @@ def Lyft():
         minlyft=min(lyftdata,key=lyftdata.get)
         print minuber
         print minlyft
-        return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber,minlyft=minlyft)
+        return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber,minlyft=minlyft,Query=Query)
 
 ########################
 @app.route("/uber", methods=['GET'])

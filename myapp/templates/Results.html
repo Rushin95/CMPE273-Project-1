@@ -6,7 +6,16 @@
        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
      <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-<style>#rectangle{
+    {% for Q in Query %}
+    <input type="" id="pck" value="{{Q.address}},{{Q.city}},{{Q.state}},{{Q.zip}}">
+    {% endfor%}
+ <style>
+  #pck{
+display:none;
+}
+ </style>
+<style>
+#rectangle{
     width:300px;
     height:300px;
     background:grey;
@@ -16,7 +25,6 @@
     padding-top: 50px;
     font-size: 250%;
     box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 1.2), 0 8px 22px 0 rgba(0, 0, 0, 0.40);
-
 </style>
  <style>
        #map {
@@ -49,7 +57,6 @@
             </nav>
         </div>
     </header>
-
 <div id="map"></div><br>
 {% if length > 0 %}
      <table class="paddingBetweenCols">
@@ -98,7 +105,6 @@
                       {% if key[0] ==min %}
                         {{"Cheapest Ride"}}
                       {% endif%}
-
                   </div>
              </div></td>
          {% else %}
@@ -119,20 +125,55 @@
     <h1>NO address</h1>
 {% endif %}
 </body>
-<script>
-      function initMap() {
-        var uluru = {lat: -25.363, lng: 131.044};
-        var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 4,
-          center: uluru
+<script >
+      function initMap()
+      {
+          var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 10,
+          center: {lat: -34.397, lng: 150.644}
         });
-        var marker = new google.maps.Marker({
-          position: uluru,
-          map: map
-        });
+        var geocoder = new google.maps.Geocoder();
+        geocodeAddress(geocoder, map);
       }
-    </script>
+
+        var locations=[]
+        e = document.getElementsByTagName('input');
+        for (i = 0; i < e.length+1; i++){
+            test=e[i].value;
+            locations.push(test);
+
+        }
+        function geocodeAddress(geocoder, resultsMap) {
+        var pickup = sessionStorage.getItem('PickUp');
+        var drop =   sessionStorage.getItem('Drop');
+        var bounds = new google.maps.LatLngBounds();
+        a=locations.length;
+        for(i=0;i<a;i++)
+        {
+                var address = locations[i];
+                geocoder.geocode({'address': address}, function(results, status)
+                {
+                  if (status === 'OK')
+                  {
+                    var marker = new google.maps.Marker({
+                      map: resultsMap,
+                      position: results[0].geometry.location
+                    });
+                    loc = new google.maps.LatLng(marker.position.lat(), marker.position.lng());
+
+                    bounds.extend(loc);
+                    resultsMap.fitBounds(bounds);
+                    resultsMap.panToBounds(bounds);
+                    }
+                  else
+                  {
+                    alert('Geocode was not successful for the following reason: ' + status);
+                  }
+                });
+            }
+      }
+</script>
     <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBYsJ3ig9aPJCgfk45XqRj-ZfqreytYC-w&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBn0gFUveJxGtZPXUm13w-DB85ALtcMy3s&callback=initMap">
     </script>
 </html>
