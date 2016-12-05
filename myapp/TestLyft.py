@@ -11,10 +11,12 @@ def Lyft(Query):
     dictstart = {}
     dictend={}
     length = len(Query)
+    is_waypoint_null = 1
     print length
     for x in range(length):
         print jsonarray
         if(Query[x].is_end_point==0):
+            is_waypoint_null = 0
             #dictmid['Address'] = Query[x].address+","+Query[x].city+","+Query[x].state
             jsonarray.append(Query[x].address+","+Query[x].city+","+Query[x].state)
             print "jsonarray"+str(jsonarray)
@@ -26,40 +28,44 @@ def Lyft(Query):
             dictend['Address'] = Query[x].address + "," + Query[x].city + "," + Query[x].state
             print "dictend="+str(dictend)
             destination_string = ','+ str(Query[x].lat)+ ',' + str(Query[x].lng)
+    if is_waypoint_null == 0:
 
-    URL = "https://maps.googleapis.com/maps/api/directions/json"
-    # params={"origin":{"Adelaide,SA"},"destination":{"Adelaide,SA"},"waypoints":{"optimize:true","Barossa+Valley,SA","Clare,SA","Connawarra,SA","McLaren+Vale,SA"},"key":{"AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"}}
-    # params1="origin=Adelaide,SA&destination=Adelaide,SA&waypoints=optimize:true|Barossa+Valley,SA|Clare,SA|Connawarra,SA|McLaren+Vale,SA&key=AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
-    origin1 = "origin=" + dictstart['Address']
-    destination1 = "&destination=" + dictend['Address']
-    dictmidlen=len(jsonarray)
-    print "destination"+destination1
-    print "source"+origin1
-    test=""
-    for y in range(dictmidlen):
-        test=test+"|"+jsonarray[y]
+        URL = "https://maps.googleapis.com/maps/api/directions/json"
+        # params={"origin":{"Adelaide,SA"},"destination":{"Adelaide,SA"},"waypoints":{"optimize:true","Barossa+Valley,SA","Clare,SA","Connawarra,SA","McLaren+Vale,SA"},"key":{"AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"}}
+        # params1="origin=Adelaide,SA&destination=Adelaide,SA&waypoints=optimize:true|Barossa+Valley,SA|Clare,SA|Connawarra,SA|McLaren+Vale,SA&key=AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
+        origin1 = "origin=" + dictstart['Address']
+        destination1 = "&destination=" + dictend['Address']
+        dictmidlen=len(jsonarray)
+        print "destination"+destination1
+        print "source"+origin1
+        test=""
+        for y in range(dictmidlen):
+            test=test+"|"+jsonarray[y]
 
-    waypoints1 = "&waypoints=optimize:true" + test
-    #waypoints1 = "&waypoints=optimize:true" + "|" + "Barossa+Valley,SA|" + "|" + "Clare,SA" + "|" + "Connawarra,SA" + "|" + "McLaren+Vale,SA"
-    key1 = "AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
-    para = origin1 + destination1 + waypoints1 + key1
-    req = requests.get(URL, params=para)
-    d3 = req.json()
-    way = d3["routes"][0]["waypoint_order"]
-    waylength=len(way)
-
+        waypoints1 = "&waypoints=optimize:true" + test
+        #waypoints1 = "&waypoints=optimize:true" + "|" + "Barossa+Valley,SA|" + "|" + "Clare,SA" + "|" + "Connawarra,SA" + "|" + "McLaren+Vale,SA"
+        key1 = "AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
+        para = origin1 + destination1 + waypoints1 + key1
+        req = requests.get(URL, params=para)
+        d3 = req.json()
+        way = d3["routes"][0]["waypoint_order"]
+        waylength=len(way)
+    elif is_waypoint_null == 1:
+        waylength = 0
+        print 'there are no way points'
     latitude=[]
     longitude=[]
     strng= str(waylength + 2)+source_string
-
-    for x in range(waylength):
-        Query=Location.query.filter_by(address=str(jsonarray[way[x]].split(",")[0])).first()
-        latitude.append(Query.lat)
-        longitude.append(Query.lng)
-        strng += ','+ str(Query.lat) +','+ str(Query.lng)
-        print strng
-        print 'insideloop'
-        # return pstring
+    print 'waylength is ',waylength
+    if is_waypoint_null == 0:
+        for x in range(waylength):
+            Query=Location.query.filter_by(address=str(jsonarray[way[x]].split(",")[0])).first()
+            latitude.append(Query.lat)
+            longitude.append(Query.lng)
+            strng += ','+ str(Query.lat) +','+ str(Query.lng)
+            print strng
+            print 'insideloop'
+            # return pstring
     strng += destination_string
     print strng
 
