@@ -26,6 +26,7 @@ def Lyft():
         length=len(lyftdata)
         uberdata=testUber.Uber()
         print lyftdata
+        print uberdata
         print "###############"
         print "IN Views Functions"
         minuber=min(uberdata, key=uberdata.get)
