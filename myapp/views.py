@@ -366,8 +366,6 @@ def trips_POST():
         if is_waypoint_null == 0:
 
             URL = "https://maps.googleapis.com/maps/api/directions/json"
-            # params={"origin":{"Adelaide,SA"},"destination":{"Adelaide,SA"},"waypoints":{"optimize:true","Barossa+Valley,SA","Clare,SA","Connawarra,SA","McLaren+Vale,SA"},"key":{"AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"}}
-            # params1="origin=Adelaide,SA&destination=Adelaide,SA&waypoints=optimize:true|Barossa+Valley,SA|Clare,SA|Connawarra,SA|McLaren+Vale,SA&key=AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
             origin1 = "origin=" + dictstart['Address']
             destination1 = "&destination=" + dictend['Address']
             dictmidlen = len(jsonarray)
@@ -378,7 +376,6 @@ def trips_POST():
                 test = test + "|" + jsonarray[y]
 
             waypoints1 = "&waypoints=optimize:true" + test
-            # waypoints1 = "&waypoints=optimize:true" + "|" + "Barossa+Valley,SA|" + "|" + "Clare,SA" + "|" + "Connawarra,SA" + "|" + "McLaren+Vale,SA"
             key1 = "&key=AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
             para = origin1 + destination1 + waypoints1 + key1
             req = requests.get(URL, params=para)
@@ -398,12 +395,10 @@ def trips_POST():
                 latitude.append(Query.lat)
                 longitude.append(Query.lng)
                 strng += ',' + str(Query.lat) + ',' + str(Query.lng)
-                # print strng
                 print 'insideloop'
                 # return pstring
         strng += destination_string
-        # print strng
-
+        
         # lyft api logic
         lat = []
         lng = []
@@ -411,9 +406,7 @@ def trips_POST():
         # fetching the no of locations to be covered
         no_of_cords = int(cords[0])
         count = 0
-        # yield len(cords)
-        # yield cords[0]
-
+        
         # setting the lat and lng list from the string given as a parameter
         while count < no_of_cords:
             lat.append(cords[(2 * count) + 1])
