@@ -3,20 +3,35 @@ from flask_mail import Message
 from flask_googlemaps import Map, icons
 from google_api import *
 from forms import *
+import pdfkit
 from myapp import TestLyft
 from myapp import testUber
+from myapp import GetMin
 from myapp import app, mail, db  #import variables created in __init__.py
 
 @app.route('/')
+
 @app.route('/index')
 def index():
     return render_template('home.html', title='Home')
 
 
-######################
+##########################
+@app.route('/new', methods=['GET','POST'])
+def new():
+
+    new_dict=uberCopy.get('OptimizedRoute')
+    rendered=render_template("Invoice.html",lyft=lyftdata,length=length,uber=uberCopy,min=minuber,minlyft=minlyft,Query=Query,new_dict=new_dict)
+    pdf=pdfkit.from_string(rendered,False)
+    response=make_response(pdf)
+    response.headers['Content-Type']='application/pdf'
+    response.headers['Content-Disposition']='attachment; filename=Invoice.pdf'
+    return response
+
 
 @app.route("/lyft", methods=['GET'])
 def Lyft():
+    global Query,length,uberdata,minlyft,minuber,lyftdata,uberCopy
     Query = Location.query.all()
     length=len(Query)
     if(length==0):
@@ -25,17 +40,17 @@ def Lyft():
         lyftdata=TestLyft.Lyft(Query)
         length=len(lyftdata)
         uberdata=testUber.Uber()
+        uberCopy=uberdata.copy()
         print lyftdata
         print uberdata
+        print "UberCopy"+str(uberCopy)
         print "###############"
         print "IN Views Functions"
-        minuber=min(uberdata, key=uberdata.get)
-        minlyft=min(lyftdata,key=lyftdata.get)
-        print minuber
-        print minlyft
+        minuber=GetMin.UberMin(uberdata)
+        minlyft=GetMin.Lyftmin(lyftdata)
         return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber,minlyft=minlyft,Query=Query)
 
-########################
+################################
 @app.route("/uber", methods=['GET'])
 def Uber():
     test1=testUber.Uber()
@@ -78,28 +93,22 @@ def deleteadd():
 
 @app.route('/about')
 def about():
-    return render_template('about.html', title='About')    #You can put these attributes on the templates
+    fake_user = {'nickname': 'Juancho'}
+    return render_template('about.html', title='About', user=fake_user)    #You can put these attributes on the templates
 
-@app.route('/trip')
-def trip():
-
-    if not User.query.get(1):
-        newuser = User("loco", "perro", "juancpinzone@hotmail.com", "trip2016")
-        db.session.add(newuser)
-        db.session.commit()
-
-    user = User.query.get(1)
-    # Send the message
-    msg = Message('Trip Planner', sender='loco_perro@rocketmail.com',
-                  recipients=[user.email,''])
-    message_route = 'The best cost based route is: ' #PUT HERE THE VALUE
-    msg.body = """
-                                  From: %s <%s>
-                                  %s
-                                  """ % ("Trip-Planner app", 'master@trip_planner.com', message_route)
-    mail.send(msg)
-    print('Message sent')
-    return render_template('trip.html', title='Trip Planner')
+@app.route('/faq')
+def faq():
+    fake_questions = [  # fake array of questions
+        {
+            'author': {'nickname': 'John'},
+            'body': 'How does Flask work?!'
+        },
+        {
+            'author': {'nickname': 'Susan'},
+            'body': 'How integrate with SQLAlchemy?'
+        }
+    ]
+    return render_template('faq.html', title='FAQ', user='client', questions=fake_questions)
 
 
 @app.route('/places', methods=['GET', 'POST'])
@@ -168,7 +177,6 @@ def places():
         # initial GET use render_template
         return render_template('places.html', title='Places', form=form, mymap=mymap, end_points=end_points)
 
-
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = SignupForm()
@@ -179,7 +187,18 @@ def signup():
             db.session.add(newuser)
             db.session.commit()
             print('Record was successfully added')
-            return redirect(url_for('signup'))
+            # Send the message
+            msg = Message('New Location', sender='loco_perro@rocketmail.com',
+                          recipients=['loco_perro@rocketmail.com', 'juankpapi@hotmail.com'])
+            message_route = 'The best cost based route is: '
+            msg.body = """
+                              From: %s <%s>
+                              %s
+                              """ % (form.firstname.data, form.email.data, message_route)
+            mail.send(msg)
+            print('Message sent')
+
+            return "[1] Create a new user [2] sign in the user [3] redirect to the user's profile"
         else:
             flash('All fields are required.')
             return render_template('signup.html', title='Sign Up', form=form)

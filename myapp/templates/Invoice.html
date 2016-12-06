@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+</head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<style>
+ #body{
+    border-style: groove;
+ }
+</style>
+<style>
+#rectangle{
+    width:300px;
+    height:300px;
+    background:grey;
+    border-radius: 25px;
+    opacity: 0.5;
+    text-align:center;
+    padding-top: 50px;
+    font-size: 250%;
+    margin-right: 500px;
+    margin-left:200px;
+    box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 1.2), 0 8px 22px 0 rgba(0, 0, 0, 0.40);
+
+
+
+</style>
+
+<body id="body">
+            <h1 align="center"><strong>Trip Planner</strong></h1>
+            <hr>
+            <form>
+                    <h1 align="center">Optimized Path</h1>
+                    <table class="table" align="center">
+                        <th bgcolor="#5F9EA0" align="Right">Route</th>
+                        <th bgcolor="#5F9EA0" align="Left">Address</th>
+
+                        <div id="new">
+                            {% for key in new_dict.iteritems() %}
+                            <tr align="center"></tr>
+
+                                        <td align="Left">{{loop.index}}</td>
+                                        <td align="Left"><id="pck" ><strong>{{key[1]}}</strong></td>
+                             {% endfor %}
+
+
+                            </tr>
+                        </div>
+                    </table>
+                    <hr>
+                    <table>
+                      <tr>
+                          <td>
+                              {% for key in lyft.iteritems() %}
+                                    {% if key[0]==minlyft %}
+                                        <div id="rectangle" align="Left">
+                                        <div class="content">
+                                            <strong>{{key[0]}}</strong><br>
+                                        ${{key[1].avg_cost}}<br>
+                                        </div>
+                                        </div>
+                                    {% endif %}
+
+                           {% endfor %}
+                          </td>
+
+                              <td>
+                                  {% for key in uber.iteritems() %}
+                                {% if key[0] ==min %}
+                                <div id="rectangle" align="Left">
+                                <div class="content">
+                                <strong>{{key[0]}}</strong><br>
+                                ${{key[1].Price}}<br>
+                                </div></div>
+                                 {% endif %}
+                                {% endfor %}
+                           </td>
+                      </tr>
+                    </table>
+                    <br>
+                    <br>
+                    <br>
+                    <hr>
+            </form>
+</body>
+</html>
