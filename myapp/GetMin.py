@@ -15,7 +15,7 @@ def UberMin(uberdata):
     print "IN Get Min Function"
     #print length
     for key in test.iteritems():
-             dict[key[0]]=key[1]['Price']
+             dict[key[0]]=int(key[1]['Price'])
 
     print dict
     minvalue=min(dict, key=dict.get)
@@ -25,7 +25,7 @@ def Lyftmin(lyftdata):
     dict={}
     for key in lyftdata.iteritems():
         if(key[1]['avg_cost'] > 0):
-            dict[key[0]]=key[1]['avg_cost']
+            dict[key[0]]=int(key[1]['avg_cost'])
     minvalue=min(dict, key=dict.get)
     print minvalue
     return minvalue
