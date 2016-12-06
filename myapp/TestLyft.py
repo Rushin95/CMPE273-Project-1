@@ -162,7 +162,8 @@ def Lyft(Query):
     print "For lyft:", lyft
     print "For lyft_plus:", lyft_plus
     print "For lyft_premier:", lyft_premier
-    all={'lyft':lyft,'lyft_plus':lyft_plus,'lyft_premier':lyft_premier, 'string':strng,'way':way}
+    # all={'lyft':lyft,'lyft_plus':lyft_plus,'lyft_premier':lyft_premier, 'string':strng,'way':way}
+    all = {'lyft': lyft, 'lyft_plus': lyft_plus, 'lyft_premier': lyft_premier}
     print all
     print 'RETURNING FROM THE FUNCTION'
     return all
