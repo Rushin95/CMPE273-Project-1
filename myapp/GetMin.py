@@ -7,9 +7,9 @@ from myapp import app, mail, db
 from decimal import Decimal
 
 def UberMin(uberdata):
-    UberModify=uberdata
-    if 'OptimizedRoute' in UberModify: del UberModify['OptimizedRoute']
-    test=UberModify
+    #UberModify=uberdata
+    if 'OptimizedRoute' in uberdata: del uberdata['OptimizedRoute']
+    test=uberdata
     dict={}
     length=len(test)
     print "IN Get Min Function"

@@ -48,6 +48,8 @@ def Lyft():
         print "IN Views Functions"
         minuber=GetMin.UberMin(uberdata)
         minlyft=GetMin.Lyftmin(lyftdata)
+        print minuber
+        print minlyft
         return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber,minlyft=minlyft,Query=Query)
 
 ################################

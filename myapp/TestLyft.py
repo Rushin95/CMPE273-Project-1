@@ -44,7 +44,7 @@ def Lyft(Query):
 
         waypoints1 = "&waypoints=optimize:true" + test
         #waypoints1 = "&waypoints=optimize:true" + "|" + "Barossa+Valley,SA|" + "|" + "Clare,SA" + "|" + "Connawarra,SA" + "|" + "McLaren+Vale,SA"
-        key1 = "AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
+        key1 = "&key=AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
         para = origin1 + destination1 + waypoints1 + key1
         req = requests.get(URL, params=para)
         d3 = req.json()
