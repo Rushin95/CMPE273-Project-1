@@ -8,7 +8,7 @@ from myapp import TestLyft
 from myapp import testUber
 from myapp import GetMin
 from myapp import app, mail, db  #import variables created in __init__.py
-
+import json
 @app.route('/')
 
 @app.route('/index')
@@ -297,3 +297,81 @@ def locations_DELETE(location_id):
         # Creates the response
         data = ""
         return make_response(json.dumps(data), 204)
+
+
+
+@app.route('/trips', methods=['POST'])
+def trips_POST():
+    if request.method == 'POST':
+
+
+        # Get the data from Request Body
+        request_trip = json.loads(request.data)
+
+        start_id = request_trip["start"].split('/')[2]
+        end_id = request_trip["end"].split('/')[2]
+        others_id = []
+
+        for x in request_trip['others']:
+            others_id.append(x.split('/')[2])
+
+        lat=[]
+        lng=[]
+        # first point
+        lat.append(Location.query.filter_by(id=start_id).first().lat)
+        lng.append(Location.query.filter_by(id=start_id).first().lng)
+        Location.query.filter_by(id=start_id).first().is_end_point = '1'
+        # for mid points
+        for x in others_id:
+            lat.append(Location.query.filter_by(id=x).first().lat)
+            lng.append(Location.query.filter_by(id=x).first().lng)
+            Location.query.filter_by(id=x).first().is_end_point='0'
+
+        # last point
+        lat.append(Location.query.filter_by(id=end_id).first().lat)
+        lng.append(Location.query.filter_by(id=end_id).first().lng)
+        Location.query.filter_by(id=end_id).first().is_end_point = '2'
+        # save all changes to database
+        db.session.commit()
+
+        Query = Location.query.all()
+        lyft_result = TestLyft.Lyft(Query)
+        way = lyft_result["way"]
+
+
+
+        best_route =[]
+        best_route.append(request_trip["start"])
+        for x in way:
+            best_route.append(request_trip["others"][int(x)])
+        best_route.append(request_trip["end"])
+        # GETTING THE RESULT FORMAT READY
+        final_result = {
+            "id": 200000,
+            "start": request_trip["start"],
+            "best_route_by_costs": best_route,
+            "providers": [
+                {
+                    "name": "Uber",
+                    "total_costs_by_cheapest_car_type": 125,
+                    "currency_code": "USD",
+                    "total_duration": 640,
+                    "duration_unit": "minute",
+                    "total_distance": 25.05,
+                    "distance_unit": "mile"
+                },
+                {
+                    "name": "Lyft",
+                    "total_costs_by_cheapest_car_type": float(lyft_result['lyft']['avg_cost']),
+                    "currency_code": "USD",
+                    "total_duration": int(lyft_result['lyft']['time'])/60,
+                    "duration_unit": "minute",
+                    "total_distance": float(lyft_result['lyft']['distance']),
+                    "distance_unit": "mile"
+                }
+            ],
+            "end": request_trip["end"]
+
+        }
+        print final_result
+        return make_response(json.dumps(final_result), 200)
