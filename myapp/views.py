@@ -40,7 +40,7 @@ def Lyft():
     if(length==0):
         return render_template('Results.html',length=length)
     else:
-        lyftdata=TestLyft.Lyft(Query)
+        lyftdata=TestLyft.Lyft()
         length=len(lyftdata)
         uberdata=testUber.Uber()
         uberCopy=uberdata.copy()
