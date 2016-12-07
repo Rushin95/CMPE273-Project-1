@@ -6,10 +6,6 @@
         <div class="flash">{{ message }}</div>
     {% endfor %}
 
-    {% for message in form.confirm_email.errors %}
-        <div class="flash">{{ message }}</div>
-    {% endfor %}
-
     {% for message in form.password.errors %}
         <div class="flash">{{ message }}</div>
     {% endfor %}
@@ -20,9 +16,6 @@
         {{ form.email.label }}
         {{ form.email }}
 
-        {{ form.confirm_email.label }}
-        {{ form.confirm_email }}
-     
         {{ form.password.label }}
         {{ form.password }}
      

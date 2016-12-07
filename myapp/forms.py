@@ -40,10 +40,7 @@ class SignupForm(FlaskForm):
 
 class SigninForm(Form):
     email = StringField("Email", [InputRequired("Please enter your email address."),
-                                  Email("Please enter a valid email address."),
-                                  EqualTo('confirm_email', message='Emails must match')])
-    confirm_email = StringField("Confirm Email", [InputRequired("Please confirm your email address."),
-                                                  Email("Please confirm with a valid email address.")])
+                                  Email("Please enter a valid email address.")])
     password = PasswordField('Password', [InputRequired("Please enter a password.")])
     submit = SubmitField("Sign In")
 

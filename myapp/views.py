@@ -98,18 +98,12 @@ def deleteadd():
 
 @app.route('/about')
 def about():
-    fake_user = {'nickname': 'Juancho'}
-    return render_template('about.html', title='About', user=fake_user)    #You can put these attributes on the templates
+    return render_template('about.html', title='About')    #You can put these attributes on the templates
 
 @app.route('/trip')
 def trip():
+    user = User.query.filter_by(email=session['email']).first()
 
-    if not User.query.get(1):
-        newuser = User("loco", "perro", "juancpinzone@hotmail.com", "trip2016")
-        db.session.add(newuser)
-        db.session.commit()
-
-    user = User.query.get(1)
     # Send the message
     msg = Message('Trip Planner', sender='loco_perro@rocketmail.com',
                   recipients=[user.email,''])
@@ -127,10 +121,7 @@ def places():
     form = PlacesForm()
 
     # Create a User by default
-    if not User.query.get(1):
-        newuser = User("", "", "", "")
-        db.session.add(newuser)
-        db.session.commit()
+    user = User.query.filter_by(email=session['email']).first()
 
     my_markers = { icons.dots.green: [], icons.dots.red: [] }
 
@@ -192,6 +183,9 @@ def places():
 def signup():
     form = SignupForm()
 
+    if 'email' in session:
+        return redirect(url_for('profile'))
+
     if request.method == 'POST':
         if form.validate():
             newuser = User(form.firstname.data, form.lastname.data, form.email.data, form.password.data)
@@ -224,6 +218,9 @@ def profile():
 def signin():
     form = SigninForm()
 
+    if 'email' in session:
+        return redirect(url_for('profile'))
+
     if request.method == 'POST':
         if form.validate():
             session['email'] = form.email.data
@@ -232,6 +229,15 @@ def signin():
             return render_template('signin.html', form=form)
     elif request.method == 'GET':
         return render_template('signin.html', form=form)
+
+@app.route('/signout')
+def signout():
+    if 'email' not in session:
+        return redirect(url_for('signin'))
+
+    session.pop('email', None)
+    return redirect(url_for('index'))
+
 
 #=========================================
 #RESTful
