@@ -6,65 +6,109 @@ from forms import *
 from myapp import app, mail, db
 from decimal import Decimal
 
-def Lyft(Query):
-    jsonarray = []
+def Lyft():
+    jsonarray = {}
     dictstart = {}
-    dictend={}
+    dictend = {}
+    finalpath = {}
+    count = 0
+    Query = Location.query.all();
+    global startLat, startLng, jsonarray, finalpath, test, midlength, startid, endId, sequence, endLat, endLng, endId, location
+
     length = len(Query)
-    is_waypoint_null = 1
+
     print length
     for x in range(length):
-        print jsonarray
-        if(Query[x].is_end_point==0):
-            is_waypoint_null = 0
-            #dictmid['Address'] = Query[x].address+","+Query[x].city+","+Query[x].state
-            jsonarray.append(Query[x].address+","+Query[x].city+","+Query[x].state)
-            print "jsonarray"+str(jsonarray)
-        elif(Query[x].is_end_point==1):
-            dictstart['Address'] = Query[x].address + "," + Query[x].city + "," + Query[x].state
-            source_string = ','+ str(Query[x].lat)+ ',' + str(Query[x].lng)
-            print "dictstart="+str(dictstart)
-        else:
-            dictend['Address'] = Query[x].address + "," + Query[x].city + "," + Query[x].state
-            print "dictend="+str(dictend)
-            destination_string = ','+ str(Query[x].lat)+ ',' + str(Query[x].lng)
-    if is_waypoint_null == 0:
+        if Query[x].is_end_point==0 : # MId Queryints value
+           dictmid={"lat":Query[x].lat,"lng":Query[x].lng,"id":Query[x].id}
+           jsonarray[Query[x].id]=dictmid
 
-        URL = "https://maps.googleapis.com/maps/api/directions/json"
-        origin1 = "origin=" + dictstart['Address']
-        destination1 = "&destination=" + dictend['Address']
-        dictmidlen=len(jsonarray)
-        print "destination"+destination1
-        print "source"+origin1
-        test=""
-        for y in range(dictmidlen):
-            test=test+"|"+jsonarray[y]
+        elif Query[x].is_end_point==1 :# Start points value
+            startLat=str(Query[x].lat)
+            startLng=str(Query[x].lng)
+            startid=str(Query[x].id)
 
-        waypoints1 = "&waypoints=optimize:true" + test
-        key1 = "&key=AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
-        para = origin1 + destination1 + waypoints1 + key1
-        req = requests.get(URL, params=para)
-        d3 = req.json()
-        way = d3["routes"][0]["waypoint_order"]
-        waylength=len(way)
-    elif is_waypoint_null == 1:
-        waylength = 0
-        print 'there are no way points'
-    latitude=[]
-    longitude=[]
-    strng= str(waylength + 2)+source_string
-    print 'waylength is ',waylength
-    if is_waypoint_null == 0:
-        for x in range(waylength):
-            Query=Location.query.filter_by(address=str(jsonarray[way[x]].split(",")[0])).first()
-            latitude.append(Query.lat)
-            longitude.append(Query.lng)
-            strng += ','+ str(Query.lat) +','+ str(Query.lng)
-            print 'insideloop'
-            
-    strng += destination_string
-    # print strng
+        else:                           # End points value
+            endLat=str(Query[x].lat)
+            endLng=str(Query[x].lng)
+            endId=str(Query[x].id)
 
+#-------------------------------------------------------------------------------------------------------------
+    print "jsonarray" + str(jsonarray)
+
+    midL = {}
+    midlength = len(jsonarray)
+    if (int(midlength) > 0 and int(midlength) != 1):
+
+        while midlength > 1:
+            print"Loop" + str(count)
+            way = {}
+            for key in jsonarray.iteritems():
+                lat = key[1]['lat']
+                lng = key[1]['lng']
+                id = key[1]['id']
+                test = lyftcall(startLat, startLng, lat, lng)
+                way[str(startid) + "-" + str(id)] = int(test)
+                print "way=" + str(way)
+            minvalue = min(way, key=way.get)
+            test = int(minvalue.split("-")[-1])
+            print "test" + str(test)
+            if test in jsonarray: del jsonarray[test]
+            print jsonarray
+            midlength = len(jsonarray)
+            print "midlength" + str(midlength)
+            Data = Location.query.filter_by(id=test).first()
+            startLat = Data.lat
+            startLng = Data.lng
+            startid = Data.id
+            print str(startLat)
+            print str(startLng)
+            count = count + 1
+            finalpath[count] = minvalue
+
+        count = count + 1
+        finalpath[count] = str(test) + "-" + str(jsonarray.keys()[0])
+        count = count + 1
+        finalpath[count] = str(jsonarray.keys()[0]) + "-" + str(endId)
+        print "Finalpath" + str(finalpath)
+        test = {}
+        sequence = 1
+        for key in finalpath.iteritems():
+            test[sequence] = str(key[1].split("-")[0])
+            sequence = sequence + 1
+        location = 0;
+        for key in test.iteritems():
+            FinalQuery = Location.query.filter_by(id=int(key[1])).first()
+            midL[location] = {'lat': FinalQuery.lat, 'lon': FinalQuery.lng}
+            location += 1
+
+        midL[location] = {'lat': endLat, 'lon': endLng}
+    elif (int(midlength) == 1):
+        print jsonarray.values()[0]['lat']
+        midL[0] = {'lat': startLat, 'lon': startLng}
+        midL[1] = {'lat': jsonarray.values()[0]['lat'], 'lon': jsonarray.values()[0]['lng']}
+        midL[2] = {'lat': endLat, 'lon': endLng}
+        print "json with One Location" + str(jsonarray)
+
+    else:
+        midL[0] = {'lat': startLat, 'lon': startLng}
+        midL[1] = {'lat': endLat, 'lon': endLng}
+
+    print "MIDDLE" + str(midL)
+
+    print "jsonarray" + str(jsonarray)
+
+
+    # CREATING STRING FOR THE OPTIMIZED ROUTE
+
+    l= len(midL)
+    strng = str(l)
+
+    for x in range(l):
+        strng += ',' + str(midL[x]['lat']) + ',' + str(midL[x]['lon'])
+    print 'string:'+ strng
+
+    # -----------------------------------------------------------------
     # lyft api logic
     lat = []
     lng = []
@@ -163,3 +207,36 @@ def Lyft(Query):
     print all
     print 'RETURNING FROM THE FUNCTION'
     return all
+
+
+
+# --------------------------------------------------------------------------------------------------------------------
+def lyftcall(sLat,sLon,eLat,eLon):
+    global i, total_min_cost, total_max_cost, ride, locationlist
+    payload = {'start_lat': sLat, 'start_lng': sLon, 'end_lat': eLat, 'end_lng': eLon}
+    headers = {
+        'Authorization': 'Bearer gAAAAABYOh2rXUfRCrbLM5kt_kICcQvAuyefz_9pJsgGhHQLhKnu3idO-pEgZN6xBWRqXyy0vaOFPse2Rk4i26RCUhKOBvYvnXAW17OwAGpmXdEzG_38O-sYbz9zd_OHdswBrRXFGKy9lBflP0eVWLP3rsCQJd1JuBFJdks2AfawYNAviW1wB2s=',
+        'Accept-Language': 'en_US',
+        'Content-Type': 'application/json',
+    }
+
+    cost = requests.get(
+        'https://api.lyft.com/v1/cost?',
+        headers=headers, params=payload)
+
+    dataX = cost.json()
+    lyft = {'min_cost': 0,
+            'max_cost': 0,
+            'avg_cost': 0,
+            'time': 0,
+            'distance': 0,
+            'type': 'lyft'
+            }
+    for iteration in dataX["cost_estimates"]:
+        if iteration["ride_type"] == "lyft":
+            lyft["min_cost"] = iteration["estimated_cost_cents_min"]
+            lyft["max_cost"] = iteration["estimated_cost_cents_max"]
+            a = (lyft['max_cost'] + lyft['min_cost']) / 200
+
+    print 'a'+str(a)
+    return a
