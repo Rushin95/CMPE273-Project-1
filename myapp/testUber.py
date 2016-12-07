@@ -4,75 +4,91 @@ from flask_googlemaps import Map, icons
 
 from google_api import *
 from forms import *
-from myapp import app, mail, db
+from myapp import app, mail, UberCall
 
 def Uber():
-    jsonarray = []
     dictstart = {}
     dictend={}
+
+    global startLat,startLng,count,jsonarray,finalpath,test,midlength,startid,endId,sequence,endLat,endLng,endId,location
+    count=0
+    jsonarray = {}
+    finalpath={}
     Query = Location.query.all()
     length = len(Query)
-    print length
 
     #Fetching the data from database.
 ################################################################################################################
     for x in range(length):
-        print jsonarray
-        if Query[x].is_end_point==0 : # End points value
-            jsonarray.append(Query[x].address+","+Query[x].city+","+Query[x].state+","+Query[x].zip)
-            print "jsonarray"+str(jsonarray)
+        if Query[x].is_end_point==0 : # MId Queryints value
+           dictmid={"lat":Query[x].lat,"lng":Query[x].lng,"id":Query[x].id}
+           jsonarray[Query[x].id]=dictmid
 
         elif Query[x].is_end_point==1 :# Start points value
-            dictstart['Address'] = Query[x].address + "," + Query[x].city + "," + Query[x].state+","+Query[x].zip
-            startLat=Query[x].lat
-            startLng=Query[x].lng
-            print "dictstart="+str(dictstart)
-        else:                           # Mid points value
-            dictend['Address'] = Query[x].address + "," + Query[x].city + "," + Query[x].state+","+Query[x].zip
-            endLat=Query[x].lat
-            endLng=Query[x].lng
-            endDct = {"lat": endLat, "lon": endLng}
-            print "dictend="+str(dictend)
+            startLat=str(Query[x].lat)
+            startLng=str(Query[x].lng)
+            startid=str(Query[x].id)
+
+        else:                           # End points value
+            endLat=str(Query[x].lat)
+            endLng=str(Query[x].lng)
+            endId=str(Query[x].id)
 ################################################################################################################
-    # If there are mid points between source and destination.
-    # Google API Calling.
-    # Work for Best route.
 
-    if(len(jsonarray)!=0):
+    print "jsonarray"+str(jsonarray)
 
-        URL = "https://maps.googleapis.com/maps/api/directions/json"
-        origin1 = "origin=" + dictstart['Address']
-        destination1 = "&destination=" + dictend['Address']
-        dictmidlen=len(jsonarray)
-        print "destination"+destination1
-        print "source"+origin1
-        test=""
-        arr=[]
-        for y in range(dictmidlen):
-            test=test+"|"+jsonarray[y] ## Making the address as required in Google maps API.
+    midlength=len(jsonarray)
+    while midlength > 1:
+        print"Loop"+str(count)
+        way={}
+        for key in jsonarray.iteritems():
+            lat=key[1]['lat']
+            lng=key[1]['lng']
+            id= key[1]['id']
+            test=UberCall.ubercall(startLat,startLng,lat,lng)
+            way[str(startid)+"-"+str(id)]=int(test)
+            print "way="+str(way)
+        minvalue=min(way, key=way.get)
+        test=int(minvalue.split("-")[-1])
+        print "test"+str(test)
+        if test in jsonarray: del jsonarray[test]
+        print jsonarray
+        midlength=len(jsonarray)
+        print "midlength"+str(midlength)
+        Data=Location.query.filter_by(id=test).first()
+        startLat=Data.lat
+        startLng=Data.lng
+        startid=Data.id
+        print str(startLat)
+        print str(startLng)
+        count=count+1
+        finalpath[count]=minvalue
 
-        waypoints1 = "&waypoints=optimize:true" + test
-        key1 = "&key=AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
-        para = origin1 + destination1 + waypoints1 + key1
-        req = requests.get(URL, params=para) # Requesting the data from Google maps API.
-        d3 = req.json()
-        way = d3["routes"][0]["waypoint_order"]
-        waylength=len(way)
-        fin=[]
-        latitude=[]
-        longitude=[]
-        for x in range(waylength):
-            Query=Location.query.filter_by(address=str(jsonarray[way[x]].split(",")[0])).first()
-            latitude.append(Query.lat)
-            longitude.append(Query.lng)
+    count=count+1
+    finalpath[count]=str(test)+"-"+str(jsonarray.keys()[0])
+    count=count+1
+    finalpath[count]=str(jsonarray.keys()[0])+"-"+str(endId)
+    print "Finalpath"+str(finalpath)
+    test={}
+    sequence=1
+    for key in finalpath.iteritems():
+        test[sequence]=str(key[1].split("-")[0])
+        sequence=sequence+1
+    location=0;
+    midL={}
+    for key in test.iteritems():
+        FinalQuery=Location.query.filter_by(id=int(key[1])).first()
+        midL[location]={'lat':FinalQuery.lat,'lon':FinalQuery.lng}
+        location+=1
 
-        mid1={}
-        for x in range(waylength):
-            mid1[x]={'lat':latitude[x],'lon':longitude[x]}
+    midL[location]={'lat':endLat,'lon':endLng}
 
-    # If there are no mid points between source and destination.
-    else:
-        mid1={}
+
+    print "MIDDLE"+str(midL)
+
+    print "test"+str(test)
+    print "way"+str(way)
+    print "jsonarray"+str(jsonarray)
 ################################################################################################################
     print("#######################################")
     # Uber API Pricing Calculations
@@ -85,20 +101,7 @@ def Uber():
         'Accept-Language': 'en_US',
         'Content-Type': 'application/json',
     }
-    midL={}
-    # Providing Starting Value
-    midL[0]={"lat":startLat,"lon":startLng}
-
-    # Providing Mid points Values
-    for y in range(len(mid1)):
-        midL[y+1]=mid1[y]
     vari=len(midL)
-
-    # Providing End Value
-    midL[vari]={"lat": endLat, "lon": endLng}
-    if vari==0:
-        midL[1]={"lat": endLat, "lon": endLng}
-    ####
     print midL
     print "mid Values"
     print midL
@@ -262,42 +265,24 @@ def Uber():
     ##
 ################################################################################################################
     ########### Best Route ############
-
-    route={}
-    #route[0]=(dictstart['Address'].split(","))[0:4]
-    route[0] = dictstart['Address']
-    x=0
-    cnt=len(jsonarray)
-    while (cnt):
-        #route[x+1]=(jsonarray[way[x]].split(","))[0:4]
-        route[x+1]=jsonarray[way[x]] ##Taking the values from Google API's results.
-        x=x+1
-        cnt=cnt-1
-    #route[len(jsonarray)+1]=(dictend['Address'].split(","))[0:4]
-    route[len(jsonarray) + 1] = dictend['Address']
-    ###
-    print route
-    print dataX["prices"]
-    print len(dataX["prices"])
-    ###
-    # Returning the results to the calling object.
-
     if vari==0:
         final={'uberX':uberX,'uberXL':uberXL,'uberSelect':uberSLT,'uberBlack':uberBLK,'uberSUV':uberSUV}
     else:
         if flag == 1:
-            final = {'uberX': 'No uberX data found', 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': route}
+            final = {'uberX': 'No uberX data found', 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': midL}
         elif flag == 2:
-            final = {'uberX': uberX, 'uberXL': 'No uberXL data found', 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': route}
+            final = {'uberX': uberX, 'uberXL': 'No uberXL data found', 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': midL}
         elif flag == 3:
-            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': 'No uberSelect data found', 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': route}
+            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': 'No uberSelect data found', 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': midL}
         elif flag == 4:
-            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': 'No uberBlack data found','uberSUV': uberSUV, 'OptimizedRoute': route}
+            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': 'No uberBlack data found','uberSUV': uberSUV, 'OptimizedRoute': midL}
         elif flag == 5:
-            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': 'No uberSUV data found', 'OptimizedRoute': route}
+            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': 'No uberSUV data found', 'OptimizedRoute': midL}
         else:
-            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK, 'uberSUV': uberSUV,'OptimizedRoute': route}
+            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK, 'uberSUV': uberSUV,'OptimizedRoute': midL}
+
     return final
+
 
 
 
