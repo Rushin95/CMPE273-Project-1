@@ -30,6 +30,7 @@ def new():
     response.headers['Content-Type']='application/pdf'
     response.headers['Content-Disposition']='attachment; filename=Invoice.pdf'
     return response
+    #eturn render_template("Invoice.html",lyft=lyftdata,length=length,uber=uberCopy,min=minuber,minlyft=minlyft,Query=Query,new_dict=final_dict)
 
 
 @app.route("/lyft", methods=['GET'])
@@ -102,7 +103,8 @@ def about():
 
 @app.route('/trip')
 def trip():
-    global Query,length,uberdata,minlyft,minuber,lyftdata,uberCopy
+    global Query,length,uberdata,minlyft,minuber,lyftdata,uberCopy,value,final_dict
+    final_dict={}
     Query = Location.query.all()
     length=len(Query)
     if(length==0):
@@ -118,6 +120,20 @@ def trip():
         print "###############"
         print "IN Views Functions"
         new_dict=uberCopy.get('OptimizedRoute')
+        print "New Dict"+str(new_dict)
+        value=""
+
+        for key in new_dict.iteritems():
+            id=key[1]['id']
+            print str(id)
+            Send_data=Location.query.filter_by(id=int(id)).first()
+            final_dict[int(key[0]+1)]=str(Send_data.address)+","+str(Send_data.city)+","+str(Send_data.state)+","+str(Send_data.zip)
+            value=str(value)+str(int(key[0]+1))+": "+str(Send_data.address)+","+str(Send_data.city)+","+str(Send_data.state)+","+str(Send_data.zip)+"\n"
+
+        print "Optimized Dicr"+str(value)
+        print "Finaldict"+str(final_dict)
+
+        #print str(Delete_data)
         print new_dict
         minuber=GetMin.UberMin(uberdata)
         minlyft=GetMin.Lyftmin(lyftdata)
@@ -128,7 +144,7 @@ def trip():
         # Send the message
         msg = Message('Trip Planner', sender='loco_perro@rocketmail.com',
                   recipients=[user.email,''])
-        message_route = new_dict #PUT HERE THE VALUE
+        message_route = "Optimized Root"+value #PUT HERE THE VALUE
         msg.body = """
                                   From: %s <%s>
                                   %s

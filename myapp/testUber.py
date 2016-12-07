@@ -79,20 +79,20 @@ def Uber():
         location=0;
         for key in test.iteritems():
             FinalQuery=Location.query.filter_by(id=int(key[1])).first()
-            midL[location]={'lat':FinalQuery.lat,'lon':FinalQuery.lng}
+            midL[location]={'lat':FinalQuery.lat,'lon':FinalQuery.lng,'id':FinalQuery.id}
             location+=1
 
-        midL[location]={'lat':endLat,'lon':endLng}
+        midL[location]={'lat':endLat,'lon':endLng,'id':endId}
     elif(int(midlength)==1):
         print jsonarray.values()[0]['lat']
-        midL[0]={'lat':startLat,'lon':startLng}
-        midL[1]={'lat':jsonarray.values()[0]['lat'],'lon':jsonarray.values()[0]['lng']}
-        midL[2]={'lat':endLat,'lon':endLng}
+        midL[0]={'lat':startLat,'lon':startLng,'id':startid}
+        midL[1]={'lat':jsonarray.values()[0]['lat'],'lon':jsonarray.values()[0]['lng'],'id':jsonarray.values()[0]['id']}
+        midL[2]={'lat':endLat,'lon':endLng,'id':endId}
         print "json with One Location"+str(jsonarray)
 
     else:
-        midL[0]={'lat':startLat,'lon':startLng}
-        midL[1]={'lat':endLat,'lon':endLng}
+        midL[0]={'lat':startLat,'lon':startLng,'id':startid}
+        midL[1]={'lat':endLat,'lon':endLng,'id':endId}
 
 
     print "MIDDLE"+str(midL)
