@@ -158,68 +158,72 @@ def Uber():
         paraX = {'start_latitude': sLat, 'start_longitude': sLon, 'end_latitude': eLat, 'end_longitude': eLon}
         rX = requests.get(URL, params=paraX, headers=headers)
         dataX = rX.json()
-        print str(dataX)
-        for it in dataX["prices"]:
-            if it["localized_display_name"] == "uberX":
-                distanceX = it["distance"]
-                addDistance1 = addDistance1 + distanceX
-                timeX = it["duration"]
-                addTime1 = addTime1 + timeX
-                intX = it["estimate"]
-                addX = intX.split("$")[-1]
-                a1X = addX.split("-")[0]  # First Value
-                add1 = add1 + int(a1X)
-                a2X = addX.split("-")[-1]  # Second Value
-                add2 = add2 + int(a2X)
+        print "Data is coming or not"+ str(dataX)
+        try:
+            for it in dataX["prices"]:
+                if it["localized_display_name"] == "uberX":
+                    distanceX = it["distance"]
+                    addDistance1 = addDistance1 + distanceX
+                    timeX = it["duration"]
+                    addTime1 = addTime1 + timeX
+                    intX = it["estimate"]
+                    addX = intX.split("$")[-1]
+                    a1X = addX.split("-")[0]  # First Value
+                    add1 = add1 + int(a1X)
+                    a2X = addX.split("-")[-1]  # Second Value
+                    add2 = add2 + int(a2X)
 
-            elif it["localized_display_name"] == "uberXL":
-                distanceX = it["distance"]
-                addDistance2 = addDistance2 + distanceX
-                timeX = it["duration"]
-                addTime2 = addTime2 + timeX
-                intX = it["estimate"]
-                addX = intX.split("$")[-1]
-                a1X = addX.split("-")[0]  # First Value
-                add1XL = add1XL + int(a1X)
-                a2X = addX.split("-")[-1]  # Second Value
-                add2XL = add2XL + int(a2X)
+                elif it["localized_display_name"] == "uberXL":
+                    distanceX = it["distance"]
+                    addDistance2 = addDistance2 + distanceX
+                    timeX = it["duration"]
+                    addTime2 = addTime2 + timeX
+                    intX = it["estimate"]
+                    addX = intX.split("$")[-1]
+                    a1X = addX.split("-")[0]  # First Value
+                    add1XL = add1XL + int(a1X)
+                    a2X = addX.split("-")[-1]  # Second Value
+                    add2XL = add2XL + int(a2X)
 
-            elif it["localized_display_name"] == "SELECT":
-                distanceX = it["distance"]
-                addDistance3 = addDistance3 + distanceX
-                timeX = it["duration"]
-                addTime3 = addTime3 + timeX
-                intX = it["estimate"]
-                addX = intX.split("$")[-1]
-                a1X = addX.split("-")[0]  # First Value
-                add1Slt = add1Slt + int(a1X)
-                a2X = addX.split("-")[-1]  # Second Value
-                add2Slt = add2Slt + int(a2X)
+                elif it["localized_display_name"] == "SELECT":
+                    distanceX = it["distance"]
+                    addDistance3 = addDistance3 + distanceX
+                    timeX = it["duration"]
+                    addTime3 = addTime3 + timeX
+                    intX = it["estimate"]
+                    addX = intX.split("$")[-1]
+                    a1X = addX.split("-")[0]  # First Value
+                    add1Slt = add1Slt + int(a1X)
+                    a2X = addX.split("-")[-1]  # Second Value
+                    add2Slt = add2Slt + int(a2X)
 
-            elif it["localized_display_name"] == "BLACK":
-                distanceX = it["distance"]
-                addDistance4 = addDistance4 + distanceX
-                timeX = it["duration"]
-                addTime4 = addTime4 + timeX
-                intX = it["estimate"]
-                addX = intX.split("$")[-1]
-                a1X = addX.split("-")[0]  # First Value
-                add1Blk = add1Blk + int(a1X)
-                a2X = addX.split("-")[-1]  # Second Value
-                add2Blk = add2Blk + int(a2X)
+                elif it["localized_display_name"] == "BLACK":
+                    distanceX = it["distance"]
+                    addDistance4 = addDistance4 + distanceX
+                    timeX = it["duration"]
+                    addTime4 = addTime4 + timeX
+                    intX = it["estimate"]
+                    addX = intX.split("$")[-1]
+                    a1X = addX.split("-")[0]  # First Value
+                    add1Blk = add1Blk + int(a1X)
+                    a2X = addX.split("-")[-1]  # Second Value
+                    add2Blk = add2Blk + int(a2X)
 
-            elif it["localized_display_name"] == "SUV":
-                distanceX = it["distance"]
-                addDistance5 = addDistance5 + distanceX
-                timeX = it["duration"]
-                addTime5 = addTime5 + timeX
-                intX = it["estimate"]
-                addX = intX.split("$")[-1]
-                a1X = addX.split("-")[0]  # First Value
-                add1SUV = add1SUV + int(a1X)
-                a2X = addX.split("-")[-1]  # Second Value
-                add2SUV = add2SUV + int(a2X)
-        counter= counter+1
+                elif it["localized_display_name"] == "SUV":
+                    distanceX = it["distance"]
+                    addDistance5 = addDistance5 + distanceX
+                    timeX = it["duration"]
+                    addTime5 = addTime5 + timeX
+                    intX = it["estimate"]
+                    addX = intX.split("$")[-1]
+                    a1X = addX.split("-")[0]  # First Value
+                    add1SUV = add1SUV + int(a1X)
+                    a2X = addX.split("-")[-1]  # Second Value
+                    add2SUV = add2SUV + int(a2X)
+            counter= counter+1
+            break
+        finally:
+            return "No Data Found"
 
     uberX={}
     uberXL={}
@@ -242,57 +246,35 @@ def Uber():
     uberSUV['Time'] = str(0)
     uberSUV['Miles'] = str(0)
 
-    if flag != 1:
+    uberX['Price'] = str((add1 + add2) / 2)
+    uberX['Time'] = str(float(addTime1 / 60))
+    uberX['Miles'] = str(addDistance1)
 
-        uberX['Price'] = str((add1 + add2) / 2)
-        uberX['Time'] = str(float(addTime1 / 60))
-        uberX['Miles'] = str(addDistance1)
+    uberXL['Price'] = str((add1XL + add2XL) / 2)
+    uberXL['Time'] = str(float(addTime2 / 60))
+    uberXL['Miles'] = str(addDistance2)
 
-    if flag != 2:
+    uberSLT['Price'] = str((add1Slt + add2Slt) / 2)
+    uberSLT['Time'] = str(float(addTime3 / 60))
+    uberSLT['Miles'] = str(addDistance3)
 
-        uberXL['Price'] = str((add1XL + add2XL) / 2)
-        uberXL['Time'] = str(float(addTime2 / 60))
-        uberXL['Miles'] = str(addDistance2)
+    uberBLK['Price'] = str((add1Blk + add2Blk) / 2)
+    uberBLK['Time'] = str(float(addTime4 / 60))
+    uberBLK['Miles'] = str(addDistance4)
 
-    if flag != 3:
-
-        uberSLT['Price'] = str((add1Slt + add2Slt) / 2)
-        uberSLT['Time'] = str(float(addTime3 / 60))
-        uberSLT['Miles'] = str(addDistance3)
-
-    if flag != 4:
-
-        uberBLK['Price'] = str((add1Blk + add2Blk) / 2)
-        uberBLK['Time'] = str(float(addTime4 / 60))
-        uberBLK['Miles'] = str(addDistance4)
-
-    if flag != 5:
-
-        uberSUV['Price'] = str((add1SUV + add1SUV) / 2)
-        uberSUV['Time'] = str(float(addTime5 / 60))
-        uberSUV['Miles'] = str(addDistance5)
+    uberSUV['Price'] = str((add1SUV + add1SUV) / 2)
+    uberSUV['Time'] = str(float(addTime5 / 60))
+    uberSUV['Miles'] = str(addDistance5)
 
     ##
     print("UberX :"+uberX['Price']+uberSUV['Price'])
     ##
 ################################################################################################################
-    ########### Best Route ############
     if vari==0:
         final={'uberX':uberX,'uberXL':uberXL,'uberSelect':uberSLT,'uberBlack':uberBLK,'uberSUV':uberSUV}
     else:
-        if flag == 1:
-            final = {'uberX': 'No uberX data found', 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': midL}
-        elif flag == 2:
-            final = {'uberX': uberX, 'uberXL': 'No uberXL data found', 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': midL}
-        elif flag == 3:
-            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': 'No uberSelect data found', 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': midL}
-        elif flag == 4:
-            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': 'No uberBlack data found','uberSUV': uberSUV, 'OptimizedRoute': midL}
-        elif flag == 5:
-            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': 'No uberSUV data found', 'OptimizedRoute': midL}
-        else:
-            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK, 'uberSUV': uberSUV,'OptimizedRoute': midL}
-
+        final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK, 'uberSUV': uberSUV,'OptimizedRoute': midL}
+    print str(final)
     return final
 
 
