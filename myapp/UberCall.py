@@ -26,6 +26,7 @@ def ubercall(sLat,sLon,eLat,eLon):
     addTime1=0
     add1=0
     add2=0
+    print"Hello from ubercall"
     for it in dataX["prices"]:
             if it["localized_display_name"] == "uberX":
                 distanceX = it["distance"]
@@ -39,4 +40,5 @@ def ubercall(sLat,sLon,eLat,eLon):
                 a2X = addX.split("-")[-1]  # Second Value
                 add2 = add2 + int(a2X)
                 final=((add1+add2)/2)
+    print "Hello again"
     return str(final)
