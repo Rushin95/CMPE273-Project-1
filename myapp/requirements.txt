@@ -9,3 +9,4 @@ flask-wtf
 Flask-MySQLdb
 bcrypt
 flask_googlemaps
+pdfkit

@@ -46,3 +46,20 @@ class Location(db.Model):
         self.lat = lat
         self.lng = lng
         self.is_end_point = is_end_point
+
+
+class Trips(db.Model):
+    __tablename__ = 'trip'
+    id = db.Column(db.Integer, primary_key = True)
+    start = db.Column(db.String(300))
+    best_route = db.Column(db.String(1000))
+    end = db.Column(db.String(300))
+    uber = db.Column(db.String(5000))
+    lyft = db.Column(db.String(5000))
+
+    def __init__(self, start, best_route, end, uber, lyft):
+        self.start = start
+        self.best_route = best_route
+        self.end = end
+        self.uber = uber
+        self.lyft = lyft

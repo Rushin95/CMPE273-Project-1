@@ -101,20 +101,26 @@ def about():
     fake_user = {'nickname': 'Juancho'}
     return render_template('about.html', title='About', user=fake_user)    #You can put these attributes on the templates
 
-@app.route('/faq')
-def faq():
-    fake_questions = [  # fake array of questions
-        {
-            'author': {'nickname': 'John'},
-            'body': 'How does Flask work?!'
-        },
-        {
-            'author': {'nickname': 'Susan'},
-            'body': 'How integrate with SQLAlchemy?'
-        }
-    ]
-    return render_template('faq.html', title='FAQ', user='client', questions=fake_questions)
+@app.route('/trip')
+def trip():
 
+    if not User.query.get(1):
+        newuser = User("loco", "perro", "juancpinzone@hotmail.com", "trip2016")
+        db.session.add(newuser)
+        db.session.commit()
+
+    user = User.query.get(1)
+    # Send the message
+    msg = Message('Trip Planner', sender='loco_perro@rocketmail.com',
+                  recipients=[user.email,''])
+    message_route = 'The best cost based route is: ' #PUT HERE THE VALUE
+    msg.body = """
+                                  From: %s <%s>
+                                  %s
+                                  """ % ("Trip-Planner app", 'master@trip_planner.com', message_route)
+    mail.send(msg)
+    print('Message sent')
+    return render_template('trip.html', title='Trip Planner')
 
 @app.route('/places', methods=['GET', 'POST'])
 def places():
