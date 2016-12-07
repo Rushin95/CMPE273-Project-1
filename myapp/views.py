@@ -668,10 +668,33 @@ def trips_POST():
         #     best_route.append(request_trip["others"][int(x)])
         # best_route.append(request_trip["end"])
 
+        lyft_db = {
+            "name": "Lyft",
+            "total_costs_by_cheapest_car_type": float(lyft['avg_cost']),
+            "currency_code": "USD",
+            "total_duration": int(lyft['time']) / 60,
+            "duration_unit": "minute",
+            "total_distance": round(lyft['distance'], 2),
+            "distance_unit": "mile"
+
+        }
+        uber_db = {
+
+            "name": "Uber",
+            "total_costs_by_cheapest_car_type": float(uberdata['uberX']['Price']),
+            "currency_code": "USD",
+            "total_duration": int(float(uberdata['uberX']['Time'])),
+            "duration_unit": "minute",
+            "total_distance": float(uberdata['uberX']['Miles']),
+            "distance_unit": "mile"
+        }
+        providers=[]
         # INSERTING INTO DB
-        t = Trips(str(request_trip['start']),str(b_route),str(request_trip['end']),'uber',str(lyft))
+        t = Trips(str(request_trip['start']),str(b_route),str(request_trip['end']),str(uber_db),str(lyft_db))
         db.session.add(t)
         db.session.commit()
+
+
         # GETTING THE RESULT FORMAT READY--------------------------------------------------------------------------
         final_result = {
             "id": t.id,
