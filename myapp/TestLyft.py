@@ -7,13 +7,14 @@ from myapp import app, mail, db
 from decimal import Decimal
 
 def Lyft():
+    global startLat, startLng, jsonarray, finalpath, test, midlength, startid, endId, sequence, endLat, endLng, endId, location
     jsonarray = {}
     dictstart = {}
     dictend = {}
     finalpath = {}
     count = 0
     Query = Location.query.all();
-    global startLat, startLng, jsonarray, finalpath, test, midlength, startid, endId, sequence, endLat, endLng, endId, location
+
 
     length = len(Query)
 

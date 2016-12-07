@@ -102,19 +102,41 @@ def about():
 
 @app.route('/trip')
 def trip():
-    user = User.query.filter_by(email=session['email']).first()
+    global Query,length,uberdata,minlyft,minuber,lyftdata,uberCopy
+    Query = Location.query.all()
+    length=len(Query)
+    if(length==0):
+        return render_template('Results.html',length=length)
+    else:
+        lyftdata=TestLyft.Lyft()
+        length=len(lyftdata)
+        uberdata=testUber.Uber()
+        uberCopy=uberdata.copy()
+        print lyftdata
+        print uberdata
+        print "UberCopy"+str(uberCopy)
+        print "###############"
+        print "IN Views Functions"
+        new_dict=uberCopy.get('OptimizedRoute')
+        print new_dict
+        minuber=GetMin.UberMin(uberdata)
+        minlyft=GetMin.Lyftmin(lyftdata)
+        print minuber
+        print minlyft
 
-    # Send the message
-    msg = Message('Trip Planner', sender='loco_perro@rocketmail.com',
+        user = User.query.filter_by(email=session['email']).first()
+        # Send the message
+        msg = Message('Trip Planner', sender='loco_perro@rocketmail.com',
                   recipients=[user.email,''])
-    message_route = 'The best cost based route is: ' #PUT HERE THE VALUE
-    msg.body = """
+        message_route = new_dict #PUT HERE THE VALUE
+        msg.body = """
                                   From: %s <%s>
                                   %s
                                   """ % ("Trip-Planner app", 'master@trip_planner.com', message_route)
-    mail.send(msg)
-    print('Message sent')
-    return render_template('trip.html', title='Trip Planner')
+        mail.send(msg)
+        print('Message sent')
+        return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber,minlyft=minlyft,Query=Query)
+
 
 @app.route('/places', methods=['GET', 'POST'])
 def places():
