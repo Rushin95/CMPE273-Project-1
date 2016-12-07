@@ -1,4 +1,4 @@
-from flask import render_template, redirect, request, flash, url_for, json, make_response
+from flask import render_template, redirect, request, flash, url_for, json, make_response, session
 from flask_mail import Message
 from flask_googlemaps import Map, icons
 from google_api import *
@@ -178,8 +178,9 @@ def signup():
             newuser = User(form.firstname.data, form.lastname.data, form.email.data, form.password.data)
             db.session.add(newuser)
             db.session.commit()
-            print('Record was successfully added')
-            return redirect(url_for('signup'))
+            session['email'] = newuser.email
+            return redirect(url_for('profile'))
+            #return redirect(url_for('signup'))
         else:
             flash('All fields are required.')
             return render_template('signup.html', title='Sign Up', form=form)
@@ -187,6 +188,32 @@ def signup():
     elif request.method == 'GET':
         return render_template('signup.html', title='Sign Up', form=form)
 
+@app.route('/profile')
+def profile():
+
+    if 'email' not in session:
+        return redirect(url_for('signin'))
+
+    user = User.query.filter_by(email=session['email']).first()
+
+    if user is None:
+        return redirect(url_for('signin'))
+    else:
+        return render_template('profile.html')
+
+
+@app.route('/signin', methods=['GET', 'POST'])
+def signin():
+    form = SigninForm()
+
+    if request.method == 'POST':
+        if form.validate():
+            session['email'] = form.email.data
+            return redirect(url_for('profile'))
+        else:
+            return render_template('signin.html', form=form)
+    elif request.method == 'GET':
+        return render_template('signin.html', form=form)
 
 #=========================================
 #RESTful

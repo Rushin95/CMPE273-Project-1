@@ -14,11 +14,12 @@ class User(db.Model):
         self.firstname = firstname.title()
         self.lastname = lastname.title()
         self.email = email.lower()
-        self.password = bcrypt.hashpw(password.title().encode('UTF_8'), bcrypt.gensalt())
+        self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
 
     def validate_password(self, password):
-        return bcrypt.hashpw(password.title().encode('UTF_8'), self.password.encode('UTF_8').decode()) == self.password
-
+        return bcrypt.hashpw((password.encode('utf-8')).encode('utf-8'), self.password.encode('utf-8')) == self.password.encode('utf-8')
+#        return bcrypt.hashpw(password.encode('utf-8'), self.password.encode('utf-8').decode()) == self.password
 
 class Location(db.Model):
     __tablename__ = 'location'
