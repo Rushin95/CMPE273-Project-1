@@ -4,93 +4,112 @@ from flask_googlemaps import Map, icons
 
 from google_api import *
 from forms import *
-from myapp import app, mail, db
+from myapp import app, mail, UberCall
 
 def Uber():
-    jsonarray = []
-    dictmid = {}
     dictstart = {}
     dictend={}
+
+    global startLat,startLng,count,jsonarray,finalpath,test,midlength,startid,endId,sequence,endLat,endLng,endId,location
+    count=0
+    jsonarray = {}
+    finalpath={}
     Query = Location.query.all()
     length = len(Query)
-    print length
+
+    #Fetching the data from database.
+################################################################################################################
     for x in range(length):
+        if Query[x].is_end_point==0 : # MId Queryints value
+           dictmid={"lat":Query[x].lat,"lng":Query[x].lng,"id":Query[x].id}
+           jsonarray[Query[x].id]=dictmid
+
+        elif Query[x].is_end_point==1 :# Start points value
+            startLat=str(Query[x].lat)
+            startLng=str(Query[x].lng)
+            startid=str(Query[x].id)
+
+        else:                           # End points value
+            endLat=str(Query[x].lat)
+            endLng=str(Query[x].lng)
+            endId=str(Query[x].id)
+################################################################################################################
+
+    print "jsonarray"+str(jsonarray)
+
+    midlength=len(jsonarray)
+    while midlength > 1:
+        print"Loop"+str(count)
+        way={}
+        for key in jsonarray.iteritems():
+            lat=key[1]['lat']
+            lng=key[1]['lng']
+            id= key[1]['id']
+            test=UberCall.ubercall(startLat,startLng,lat,lng)
+            way[str(startid)+"-"+str(id)]=int(test)
+            print "way="+str(way)
+        minvalue=min(way, key=way.get)
+        test=int(minvalue.split("-")[-1])
+        print "test"+str(test)
+        if test in jsonarray: del jsonarray[test]
         print jsonarray
-        if(Query[x].is_end_point==0):
-            jsonarray.append(Query[x].address+","+Query[x].city+","+Query[x].state+","+Query[x].zip)
-            print "jsonarray"+str(jsonarray)
-        elif(Query[x].is_end_point==1):
+        midlength=len(jsonarray)
+        print "midlength"+str(midlength)
+        Data=Location.query.filter_by(id=test).first()
+        startLat=Data.lat
+        startLng=Data.lng
+        startid=Data.id
+        print str(startLat)
+        print str(startLng)
+        count=count+1
+        finalpath[count]=minvalue
 
-            dictstart['Address'] = Query[x].address + "," + Query[x].city + "," + Query[x].state+","+Query[x].zip
-            startLat=Query[x].lat
-            startLng=Query[x].lng
-            print "dictstart="+str(dictstart)
-        else:
-            dictend['Address'] = Query[x].address + "," + Query[x].city + "," + Query[x].state+","+Query[x].zip
-            endLat=Query[x].lat
-            endLng=Query[x].lng
-            endDct = {"lat": endLat, "lon": endLng}
-            print "dictend="+str(dictend)
-    if(len(jsonarray)!=0):
+    count=count+1
+    finalpath[count]=str(test)+"-"+str(jsonarray.keys()[0])
+    count=count+1
+    finalpath[count]=str(jsonarray.keys()[0])+"-"+str(endId)
+    print "Finalpath"+str(finalpath)
+    test={}
+    sequence=1
+    for key in finalpath.iteritems():
+        test[sequence]=str(key[1].split("-")[0])
+        sequence=sequence+1
+    location=0;
+    midL={}
+    for key in test.iteritems():
+        FinalQuery=Location.query.filter_by(id=int(key[1])).first()
+        midL[location]={'lat':FinalQuery.lat,'lon':FinalQuery.lng}
+        location+=1
 
-        URL = "https://maps.googleapis.com/maps/api/directions/json"
-        origin1 = "origin=" + dictstart['Address']
-        destination1 = "&destination=" + dictend['Address']
-        dictmidlen=len(jsonarray)
-        print "destination"+destination1
-        print "source"+origin1
-        test=""
-        arr=[]
-        for y in range(dictmidlen):
-            test=test+"|"+jsonarray[y]
+    midL[location]={'lat':endLat,'lon':endLng}
 
 
-        waypoints1 = "&waypoints=optimize:true" + test
-        key1 = "AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
-        para = origin1 + destination1 + waypoints1 + key1
-        req = requests.get(URL, params=para)
-        d3 = req.json()
-        way = d3["routes"][0]["waypoint_order"]
-        waylength=len(way)
-        fin=[]
-        latitude=[]
-        longitude=[]
-        for x in range(waylength):
-            Query=Location.query.filter_by(address=str(jsonarray[way[x]].split(",")[0])).first()
-            latitude.append(Query.lat)
-            longitude.append(Query.lng)
+    print "MIDDLE"+str(midL)
 
-        st1=[]
-        en=[]
-        print Location.query.filter_by(address=str(dictstart['Address'])).first()
-        startLoc={'lat':startLat,'lon':startLng}
-        st1.append(startLoc)
-        endLoc={'lat':endLat,'lon':endLng}
-        en.append(endLoc)
-        mid1={}
-        for x in range(waylength):
-            mid1[x]={'lat':latitude[x],'lon':longitude[x]}
-    else:
-        mid1={}
-
+    print "test"+str(test)
+    print "way"+str(way)
+    print "jsonarray"+str(jsonarray)
+################################################################################################################
     print("#######################################")
+    # Uber API Pricing Calculations
+
+    # URL of Uber API.
+    URL = "https://api.uber.com/v1.2/estimates/price"
+    # Header of Uber API.
     headers = {
         'Authorization': 'Token aTS7ifSRpVChp5-VsDkVxTrlZyUSA9g2qdH81E2k',
         'Accept-Language': 'en_US',
         'Content-Type': 'application/json',
     }
-    midL={}
-    midL[0]={"lat":startLat,"lon":startLng}
-    for y in range(len(mid1)):
-        midL[y+1]=mid1[y]
     vari=len(midL)
-    midL[vari]={"lat": endLat, "lon": endLng}
-    if vari==0:
-        midL[1]={"lat": endLat, "lon": endLng}
     print midL
     print "mid Values"
     print midL
     print "Ended"
+
+    print "Calculaion"
+    ####
+
 
     maxLen = len(midL)
     counter = 0
@@ -98,8 +117,27 @@ def Uber():
     add2 = 0
     addTime1 = 0
     addDistance1 = 0
-    print "Calculaion"
-    URL = "https://api.uber.com/v1.2/estimates/price"
+    flag=0 ####### Value of flag defined
+    #uberXL
+    addDistance2=0
+    addTime2=0
+    add1XL=0
+    add2XL=0
+    #uberSelect
+    addDistance3=0
+    addTime3=0
+    add1Slt=0
+    add2Slt=0
+    #uberBlack
+    addDistance4=0
+    addTime4=0
+    add1Blk=0
+    add2Blk=0
+    #uberSUV
+    addDistance5=0
+    addTime5=0
+    add1SUV=0
+    add2SUV=0
     # Calculation for uberX
     while counter < (maxLen - 1):
         sLat = midL.values()[counter].get('lat')
@@ -109,178 +147,143 @@ def Uber():
         paraX = {'start_latitude': sLat, 'start_longitude': sLon, 'end_latitude': eLat, 'end_longitude': eLon}
         rX = requests.get(URL, params=paraX, headers=headers)
         dataX = rX.json()
-        distanceX = dataX["prices"][1]["distance"]
-        addDistance1 = addDistance1 + distanceX
-        timeX = dataX["prices"][1]["duration"]
-        addTime1 = addTime1 + timeX
-        intX = dataX["prices"][1]["estimate"]
-        addX = intX.split("$")[-1]
-        a1X = addX.split("-")[0]  # First Value
-        add1 = add1 + int(a1X)
-        a2X = addX.split("-")[-1]  # Second Value
-        add2 = add2 + int(a2X)
-        counter += 1
+        for it in dataX["prices"]:
+            if it["localized_display_name"] == "uberX":
+                distanceX = it["distance"]
+                addDistance1 = addDistance1 + distanceX
+                timeX = it["duration"]
+                addTime1 = addTime1 + timeX
+                intX = it["estimate"]
+                addX = intX.split("$")[-1]
+                a1X = addX.split("-")[0]  # First Value
+                add1 = add1 + int(a1X)
+                a2X = addX.split("-")[-1]  # Second Value
+                add2 = add2 + int(a2X)
 
-    counter = 0
-    add1XL = 0
-    add2XL = 0
-    addTime2 = 0
-    addDistance2 = 0
-    # Calculation for uberXL
-    while counter < (maxLen - 1):
-        sLat = midL.values()[counter].get('lat')
-        sLon = midL.values()[counter].get('lon')
-        eLat = midL.values()[counter + 1].get('lat')
-        eLon = midL.values()[counter + 1].get('lon')
-        paraX = {'start_latitude': sLat, 'start_longitude': sLon, 'end_latitude': eLat, 'end_longitude': eLon}
-        rX = requests.get(URL, params=paraX, headers=headers)
-        dataX = rX.json()
-        distanceX = dataX["prices"][1]["distance"]
-        addDistance2 = addDistance2 + distanceX
-        timeX = dataX["prices"][2]["duration"]
-        addTime2 = addTime2 + timeX
-        intX = dataX["prices"][2]["estimate"]
-        addX = intX.split("$")[-1]
-        a1X = addX.split("-")[0]  # First Value
-        add1XL = add1XL + int(a1X)
-        a2X = addX.split("-")[-1]  # Second Value
-        add2XL = add1XL + int(a2X)
-        counter += 1
+            elif it["localized_display_name"] == "uberXL":
+                distanceX = it["distance"]
+                addDistance2 = addDistance2 + distanceX
+                timeX = it["duration"]
+                addTime2 = addTime2 + timeX
+                intX = it["estimate"]
+                addX = intX.split("$")[-1]
+                a1X = addX.split("-")[0]  # First Value
+                add1XL = add1XL + int(a1X)
+                a2X = addX.split("-")[-1]  # Second Value
+                add2XL = add2XL + int(a2X)
 
-    counter = 0
-    add1Slt = 0
-    add2Slt = 0
-    addTime3 = 0
-    addDistance3 = 0
-    # Calculation for uberSelect
-    while counter < (maxLen - 1):
-        sLat = midL.values()[counter].get('lat')
-        sLon = midL.values()[counter].get('lon')
-        eLat = midL.values()[counter + 1].get('lat')
-        eLon = midL.values()[counter + 1].get('lon')
-        paraX = {'start_latitude': sLat, 'start_longitude': sLon, 'end_latitude': eLat, 'end_longitude': eLon}
-        rX = requests.get(URL, params=paraX, headers=headers)
-        dataX = rX.json()
-        distanceX = dataX["prices"][1]["distance"]
-        addDistance3 = addDistance3 + distanceX
-        timeX = dataX["prices"][3]["duration"]
-        addTime3 = addTime3 + timeX
-        intX = dataX["prices"][3]["estimate"]
-        addX = intX.split("$")[-1]
-        a1X = addX.split("-")[0]  # First Value
-        add1Slt = add1Slt + int(a1X)
-        a2X = addX.split("-")[-1]  # Second Value
-        add2Slt = add2Slt + int(a2X)
-        counter += 1
+            elif it["localized_display_name"] == "SELECT":
+                distanceX = it["distance"]
+                addDistance3 = addDistance3 + distanceX
+                timeX = it["duration"]
+                addTime3 = addTime3 + timeX
+                intX = it["estimate"]
+                addX = intX.split("$")[-1]
+                a1X = addX.split("-")[0]  # First Value
+                add1Slt = add1Slt + int(a1X)
+                a2X = addX.split("-")[-1]  # Second Value
+                add2Slt = add2Slt + int(a2X)
 
-    counter = 0
-    add1Blk = 0
-    add2Blk = 0
-    addTime4 = 0
-    addDistance4 = 0
-    # Calculation for uberBlack
-    while counter < (maxLen - 1):
-        sLat = midL.values()[counter].get('lat')
-        sLon = midL.values()[counter].get('lon')
-        eLat = midL.values()[counter + 1].get('lat')
-        eLon = midL.values()[counter + 1].get('lon')
-        paraX = {'start_latitude': sLat, 'start_longitude': sLon, 'end_latitude': eLat, 'end_longitude': eLon}
-        rX = requests.get(URL, params=paraX, headers=headers)
-        dataX = rX.json()
-        distanceX = dataX["prices"][1]["distance"]
-        addDistance4 = addDistance4 + distanceX
-        timeX = dataX["prices"][4]["duration"]
-        addTime4 = addTime4 + timeX
-        intX = dataX["prices"][4]["estimate"]
-        addX = intX.split("$")[-1]
-        a1X = addX.split("-")[0]  # First Value
-        add1Blk = add1Blk + int(a1X)
-        a2X = addX.split("-")[-1]  # Second Value
-        add2Blk = add2Blk + int(a2X)
-        counter += 1
+            elif it["localized_display_name"] == "BLACK":
+                distanceX = it["distance"]
+                addDistance4 = addDistance4 + distanceX
+                timeX = it["duration"]
+                addTime4 = addTime4 + timeX
+                intX = it["estimate"]
+                addX = intX.split("$")[-1]
+                a1X = addX.split("-")[0]  # First Value
+                add1Blk = add1Blk + int(a1X)
+                a2X = addX.split("-")[-1]  # Second Value
+                add2Blk = add2Blk + int(a2X)
 
-    counter = 0
-    add1SUV = 0
-    add2SUV = 0
-    addTime5 = 0
-    addDistance5 = 0
-    # Calculation for uberSUV
-    while counter < (maxLen - 1):
-        sLat = midL.values()[counter].get('lat')
-        sLon = midL.values()[counter].get('lon')
-        eLat = midL.values()[counter + 1].get('lat')
-        eLon = midL.values()[counter + 1].get('lon')
-        paraX = {'start_latitude': sLat, 'start_longitude': sLon, 'end_latitude': eLat, 'end_longitude': eLon}
-        rX = requests.get(URL, params=paraX, headers=headers)
-        dataX = rX.json()
-        distanceX = dataX["prices"][1]["distance"]
-        addDistance5 = addDistance5 + distanceX
-        timeX = dataX["prices"][5]["duration"]
-        addTime5 = addTime5 + timeX
-        intX = dataX["prices"][5]["estimate"]
-        addX = intX.split("$")[-1]
-        a1X = addX.split("-")[0]  # First Value
-        add1SUV = add1SUV + int(a1X)
-        a2X = addX.split("-")[-1]  # Second Value
-        add2SUV = add2SUV + int(a2X)
-        counter += 1
-
-    printst1 = "Car Type uberX"
-    printValue1 = "Total Estimated Price : " + "$" + str(add1) + " to " + "$" + str(add2)
-    printTime1 = "Total Estimated time in minutes : " + str(float(addTime1 / 60))
-    printDistance1 = "Total Distance in Miles : " + str(addDistance1)
-
-    printst2 = "Car Type uberXL"
-    printValue2 = "Total Estimated Price : " + "$" + str(add1XL) + " to " + "$" + str(add2XL)
-    printTime2 = "Total Estimated time in minutes : " + str(float(addTime2 / 60))
-    printDistance2 = "Total Distance in Miles : " + str(addDistance2)
+            elif it["localized_display_name"] == "SUV":
+                distanceX = it["distance"]
+                addDistance5 = addDistance5 + distanceX
+                timeX = it["duration"]
+                addTime5 = addTime5 + timeX
+                intX = it["estimate"]
+                addX = intX.split("$")[-1]
+                a1X = addX.split("-")[0]  # First Value
+                add1SUV = add1SUV + int(a1X)
+                a2X = addX.split("-")[-1]  # Second Value
+                add2SUV = add2SUV + int(a2X)
+        counter= counter+1
 
     uberX={}
     uberXL={}
     uberSLT={}
     uberBLK={}
     uberSUV={}
+    uberX['Price'] = str(0)
+    uberX['Time'] = str(0)
+    uberX['Miles'] = str(0)
+    uberXL['Price'] = str(0)
+    uberXL['Time'] = str(0)
+    uberXL['Miles'] = str(0)
+    uberSLT['Price'] = str(0)
+    uberSLT['Time'] = str(0)
+    uberSLT['Miles'] = str(0)
+    uberBLK['Price'] = str(0)
+    uberBLK['Time'] = str(0)
+    uberBLK['Miles'] = str(0)
+    uberSUV['Price'] = str(0)
+    uberSUV['Time'] = str(0)
+    uberSUV['Miles'] = str(0)
 
-    print1 = printst1 + "\n" + printValue1 + "\n" + printTime1 + "\n" + printDistance1 + "\n" + "\n" + printst2 + "\n" + printValue2 + "\n" + printTime2 + "\n" + printDistance2
-    uberX['Price']=str((add1+add2)/2)
-    uberX['Time']=str(float(addTime1 / 60))
-    uberX['Miles']=str(addDistance1)
+    if flag != 1:
 
-    uberXL['Price']=str((add1XL+add2XL)/2)
-    uberXL['Time']=str(float(addTime2 / 60))
-    uberXL['Miles']=str(addDistance2)
+        uberX['Price'] = str((add1 + add2) / 2)
+        uberX['Time'] = str(float(addTime1 / 60))
+        uberX['Miles'] = str(addDistance1)
 
-    uberSLT['Price']=str((add1Slt+add2Slt)/2)
-    uberSLT['Time']=str(float(addTime3 / 60))
-    uberSLT['Miles']=str(addDistance3)
+    if flag != 2:
 
-    uberBLK['Price'] = str((add1Blk + add2Blk) / 2)
-    uberBLK['Time'] = str(float(addTime4 / 60))
-    uberBLK['Miles'] = str(addDistance4)
+        uberXL['Price'] = str((add1XL + add2XL) / 2)
+        uberXL['Time'] = str(float(addTime2 / 60))
+        uberXL['Miles'] = str(addDistance2)
 
-    uberSUV['Price'] = str((add1SUV + add1SUV) / 2)
-    uberSUV['Time'] = str(float(addTime5 / 60))
-    uberSUV['Miles'] = str(addDistance5)
+    if flag != 3:
 
+        uberSLT['Price'] = str((add1Slt + add2Slt) / 2)
+        uberSLT['Time'] = str(float(addTime3 / 60))
+        uberSLT['Miles'] = str(addDistance3)
 
+    if flag != 4:
+
+        uberBLK['Price'] = str((add1Blk + add2Blk) / 2)
+        uberBLK['Time'] = str(float(addTime4 / 60))
+        uberBLK['Miles'] = str(addDistance4)
+
+    if flag != 5:
+
+        uberSUV['Price'] = str((add1SUV + add1SUV) / 2)
+        uberSUV['Time'] = str(float(addTime5 / 60))
+        uberSUV['Miles'] = str(addDistance5)
+
+    ##
     print("UberX :"+uberX['Price']+uberSUV['Price'])
-
+    ##
+################################################################################################################
     ########### Best Route ############
-    route={}
-    route[0]=(dictstart['Address'].split(","))[0:4]
-    print route
-    x=0
-    cnt=len(jsonarray)
-    while (cnt):
-        route[x+1]=(jsonarray[way[x]].split(","))[0:4]
-        x=x+1
-        cnt=cnt-1
-    route[len(jsonarray)+1]=(dictend['Address'].split(","))[0:4]
-    print route
-
-    final={'uberX':uberX,'uberXL':uberXL,'uberSelect':uberSLT,'uberBlack':uberBLK,'uberSUV':uberSUV,'Optimized Route':route}
     if vari==0:
         final={'uberX':uberX,'uberXL':uberXL,'uberSelect':uberSLT,'uberBlack':uberBLK,'uberSUV':uberSUV}
+    else:
+        if flag == 1:
+            final = {'uberX': 'No uberX data found', 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': midL}
+        elif flag == 2:
+            final = {'uberX': uberX, 'uberXL': 'No uberXL data found', 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': midL}
+        elif flag == 3:
+            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': 'No uberSelect data found', 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': midL}
+        elif flag == 4:
+            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': 'No uberBlack data found','uberSUV': uberSUV, 'OptimizedRoute': midL}
+        elif flag == 5:
+            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': 'No uberSUV data found', 'OptimizedRoute': midL}
+        else:
+            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK, 'uberSUV': uberSUV,'OptimizedRoute': midL}
+
     return final
+
+
+
 
 

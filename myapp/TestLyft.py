@@ -31,8 +31,6 @@ def Lyft(Query):
     if is_waypoint_null == 0:
 
         URL = "https://maps.googleapis.com/maps/api/directions/json"
-        # params={"origin":{"Adelaide,SA"},"destination":{"Adelaide,SA"},"waypoints":{"optimize:true","Barossa+Valley,SA","Clare,SA","Connawarra,SA","McLaren+Vale,SA"},"key":{"AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"}}
-        # params1="origin=Adelaide,SA&destination=Adelaide,SA&waypoints=optimize:true|Barossa+Valley,SA|Clare,SA|Connawarra,SA|McLaren+Vale,SA&key=AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
         origin1 = "origin=" + dictstart['Address']
         destination1 = "&destination=" + dictend['Address']
         dictmidlen=len(jsonarray)
@@ -43,8 +41,7 @@ def Lyft(Query):
             test=test+"|"+jsonarray[y]
 
         waypoints1 = "&waypoints=optimize:true" + test
-        #waypoints1 = "&waypoints=optimize:true" + "|" + "Barossa+Valley,SA|" + "|" + "Clare,SA" + "|" + "Connawarra,SA" + "|" + "McLaren+Vale,SA"
-        key1 = "AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
+        key1 = "&key=AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
         para = origin1 + destination1 + waypoints1 + key1
         req = requests.get(URL, params=para)
         d3 = req.json()
@@ -63,21 +60,20 @@ def Lyft(Query):
             latitude.append(Query.lat)
             longitude.append(Query.lng)
             strng += ','+ str(Query.lat) +','+ str(Query.lng)
-            print strng
             print 'insideloop'
-            # return pstring
+            
     strng += destination_string
-    print strng
+    # print strng
 
     # lyft api logic
     lat = []
     lng = []
     cords = strng.split(',')
+    
     # fetching the no of locations to be covered
     no_of_cords = int(cords[0])
     count = 0
-    # yield len(cords)
-    # yield cords[0]
+
 
     # setting the lat and lng list from the string given as a parameter
     while count < no_of_cords:
@@ -119,7 +115,7 @@ def Lyft(Query):
         stop = requests.get(
             'https://api.lyft.com/v1/cost?',
             headers=headers, params=payload)
-        print stop.json()
+        # print stop.json()
         result = stop.json()
         count += 1
 
@@ -129,19 +125,19 @@ def Lyft(Query):
                 lyft_plus["min_cost"] += iteration["estimated_cost_cents_min"]
                 lyft_plus["max_cost"] += iteration["estimated_cost_cents_max"]
                 lyft_plus["time"] += iteration["estimated_duration_seconds"]
-                lyft_plus["distance"] += iteration["estimated_distance_miles"]
+                lyft_plus["distance"] += Decimal(iteration["estimated_distance_miles"]* 0.01).quantize(Decimal("0.01"))
                 # yield lyft_plus
             elif iteration["ride_type"] == "lyft":
                 lyft["min_cost"] += iteration["estimated_cost_cents_min"]
                 lyft["max_cost"] += iteration["estimated_cost_cents_max"]
                 lyft["time"] += iteration["estimated_duration_seconds"]
-                lyft["distance"] += iteration["estimated_distance_miles"]
+                lyft["distance"] += Decimal(iteration["estimated_distance_miles"]* 0.01).quantize(Decimal("0.01"))
                 # yield lyft
             elif iteration["ride_type"] == "lyft_premier":
                 lyft_premier["min_cost"] += iteration["estimated_cost_cents_min"]
                 lyft_premier["max_cost"] += iteration["estimated_cost_cents_max"]
                 lyft_premier["time"] += iteration["estimated_duration_seconds"]
-                lyft_premier["distance"] += iteration["estimated_distance_miles"]
+                lyft_premier["distance"] += Decimal(iteration["estimated_distance_miles"]* 0.01).quantize(Decimal("0.01"))
                 # yield lyft_premier
     # FINDING THE AVERAGE COST
     a = (lyft['max_cost'] + lyft['min_cost']) / 2
@@ -162,6 +158,8 @@ def Lyft(Query):
     print "For lyft:", lyft
     print "For lyft_plus:", lyft_plus
     print "For lyft_premier:", lyft_premier
-    all={'lyft':lyft,'lyft_plus':lyft_plus,'lyft_premier':lyft_premier}
+    # all={'lyft':lyft,'lyft_plus':lyft_plus,'lyft_premier':lyft_premier, 'string':strng,'way':way}
+    all = {'lyft': lyft, 'lyft_plus': lyft_plus, 'lyft_premier': lyft_premier}
     print all
+    print 'RETURNING FROM THE FUNCTION'
     return all

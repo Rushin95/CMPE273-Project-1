@@ -38,6 +38,13 @@ display:none;
     padding:10px 15px 10px 15px;
 }
 </style>
+    <script>
+    function generate(){
+              window.location ='/new';
+         }
+
+
+    </script>
 </head>
 <body>
 <header>
@@ -66,28 +73,42 @@ display:none;
             <td><div id="rectangle">
                   <div class="content">
                       <strong>{{key[0]}}</strong><br>
-                      {{key[1].avg_cost}}$
+                      ${{key[1].avg_cost}}<br>
+                      {% if key[0] ==minlyft %}
+                        {{"Cheapest Ride"}}
+                      {% endif%}
                   </div>
              </div></td>
         {% elif key[0] =='lyft_premier'%}
+                {%if key[1].avg_cost > 0 %}
                 <td><div id="rectangle">
                   <div class="content">
                       <strong>{{key[0]}}</strong><br>
-                      {{key[1].avg_cost}}$
+                      ${{key[1].avg_cost}}<br>
+                      {% if key[0] ==minlyft %}
+                        {{"Cheapest Ride"}}
+                      {% endif%}
                   </div>
              </div></td>
+                {% endif    %}
         {% elif key[0] =='lyft_line'%}
                 <td><div id="rectangle">
                   <div class="content">
                       <strong>{{key[0]}}</strong><br>
-                      {{key[1].avg_cost}}$
+                      ${{key[1].avg_cost}}<br>
+                      {% if key[0] ==minlyft %}
+                        {{"Cheapest Ride"}}
+                      {% endif%}
                   </div>
              </div></td>
         {% elif key[0] =='lyft_plus'%}
                <td><div id="rectangle">
                   <div class="content">
                       <strong>{{key[0]}}</strong><br>
-                      {{key[1].avg_cost}}$
+                      ${{key[1].avg_cost}}<br>
+                      {% if key[0] ==minlyft %}
+                        {{"Cheapest Ride"}}
+                      {% endif%}
                   </div>
              </div></td>
          {% endif %}
@@ -96,30 +117,37 @@ display:none;
      <tr>
        <td></td>
       {% for key in uber.iteritems() %}
-         {% if key[0] =='uberX' %}
+         {% if key[0]!='OptimizedRoute'%}
+            {% if key[0] =='uberX' %}
             <td><div id="rectangle">
                   <div class="content">
                       <strong>{{key[0]}}</strong><br>
-                      {{key[1].Price}}$<br>
+                      ${{key[1].Price}}<br>
                       {% if key[0] ==min %}
                         {{"Cheapest Ride"}}
                       {% endif%}
                   </div>
              </div></td>
-         {% else %}
+            {% else %}
                 <td><div id="rectangle">
                   <div class="content">
                       <strong>{{key[0]}}</strong><br>
-                      {{key[1].Price}}$<br>
+                      ${{key[1].Price}}<br>
                       {% if key[0] ==min %}
                         {{"Cheapest Ride"}}
                       {% endif%}
                   </div>
              </div></td>
          {% endif %}
+         {% endif %}
          {% endfor %}
      </tr>
      </table>
+         <hr>
+        <form action="/new" method="post">
+
+                <button type="button"  value="submit" onclick="generate()" class="btn btn-default" style="margin-left:auto;margin-right:auto;display:block;margin-top:5%;margin-bottom:0%">Generate PDF</button>
+        </form>
 {% else %}
     <h1>NO address</h1>
 {% endif %}
