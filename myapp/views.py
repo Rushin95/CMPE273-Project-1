@@ -43,20 +43,23 @@ def Lyft():
         return render_template('Results.html',length=length)
     else:
         uberdata = testUber.Uber()
-        print str(uberdata)
-        uberCopy = uberdata.copy()
-        lyftdata=TestLyft.Lyft()
-        length=len(lyftdata)
-        print lyftdata
-        print uberdata
-        print "UberCopy"+str(uberCopy)
-        print "###############"
-        print "IN Views Functions"
-        minuber=GetMin.UberMin(uberdata)
-        minlyft=GetMin.Lyftmin(lyftdata)
-        print minuber
-        print minlyft
-        return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber,minlyft=minlyft,Query=Query)
+        if(str(uberdata)=='No Data Found'):
+            return render_template("")
+
+        else:
+            uberCopy = uberdata.copy()
+            lyftdata=TestLyft.Lyft()
+            length=len(lyftdata)
+            print lyftdata
+            print uberdata
+            print "UberCopy"+str(uberCopy)
+            print "###############"
+            print "IN Views Functions"
+            minuber=GetMin.UberMin(uberdata)
+            minlyft=GetMin.Lyftmin(lyftdata)
+            print minuber
+            print minlyft
+            return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber,minlyft=minlyft,Query=Query)
 
 ################################
 @app.route("/uber", methods=['GET'])
@@ -113,47 +116,52 @@ def trip():
         return render_template('Results.html',length=length)
     else:
         lyftdata=TestLyft.Lyft()
-        length=len(lyftdata)
+
         uberdata=testUber.Uber()
-        uberCopy=uberdata.copy()
-        print lyftdata
-        print uberdata
-        print "UberCopy"+str(uberCopy)
-        print "###############"
-        print "IN Views Functions"
-        new_dict=uberCopy.get('OptimizedRoute')
-        print "New Dict"+str(new_dict)
-        value=""
+        if(str(uberdata)=="No Data Found" or str(lyftdata)=="No Data Found" ):
+            return render_template("ErrorPage.html")
 
-        for key in new_dict.iteritems():
-            id=key[1]['id']
-            print str(id)
-            Send_data=Location.query.filter_by(id=int(id)).first()
-            final_dict[int(key[0]+1)]=str(Send_data.address)+","+str(Send_data.city)+","+str(Send_data.state)+","+str(Send_data.zip)
-            value=str(value)+str(int(key[0]+1))+": "+str(Send_data.address)+","+str(Send_data.city)+","+str(Send_data.state)+","+str(Send_data.zip)+"\n"
+        else:
+            length=len(lyftdata)
+            uberCopy=uberdata.copy()
+            print lyftdata
+            print uberdata
+            print "UberCopy"+str(uberCopy)
+            print "###############"
+            print "IN Views Functions"
+            new_dict=uberCopy.get('OptimizedRoute')
+            print "New Dict"+str(new_dict)
+            value=""
 
-        print "Optimized Dicr"+str(value)
-        print "Finaldict"+str(final_dict)
+            for key in new_dict.iteritems():
+                id=key[1]['id']
+                print str(id)
+                Send_data=Location.query.filter_by(id=int(id)).first()
+                final_dict[int(key[0]+1)]=str(Send_data.address)+","+str(Send_data.city)+","+str(Send_data.state)+","+str(Send_data.zip)
+                value=str(value)+str(int(key[0]+1))+": "+str(Send_data.address)+","+str(Send_data.city)+","+str(Send_data.state)+","+str(Send_data.zip)+"\n"
 
-        #print str(Delete_data)
-        print new_dict
-        minuber=GetMin.UberMin(uberdata)
-        minlyft=GetMin.Lyftmin(lyftdata)
-        print minuber
-        print minlyft
+            print "Optimized Dicr"+str(value)
+            print "Finaldict"+str(final_dict)
 
-        user = User.query.filter_by(email=session['email']).first()
-        # Send the message
-        msg = Message('Trip Planner', sender='loco_perro@rocketmail.com',
-                  recipients=[user.email,''])
-        message_route = "Optimized Root"+value #PUT HERE THE VALUE
-        msg.body = """
-                                  From: %s <%s>
-                                  %s
-                                  """ % ("Trip-Planner app", 'master@trip_planner.com', message_route)
-        mail.send(msg)
-        print('Message sent')
-        return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber,minlyft=minlyft,Query=Query)
+            #print str(Delete_data)
+            print new_dict
+            minuber=GetMin.UberMin(uberdata)
+            minlyft=GetMin.Lyftmin(lyftdata)
+            print minuber
+            print minlyft
+
+            user = User.query.filter_by(email=session['email']).first()
+            # Send the message
+            msg = Message('Trip Planner', sender='loco_perro@rocketmail.com',
+                      recipients=[user.email,''])
+            message_route = "Optimized Root"+value #PUT HERE THE VALUE
+            msg.body = """
+                                      From: %s <%s>
+                                      %s
+                                      """ % ("Trip-Planner app", 'master@trip_planner.com', message_route)
+            mail.send(msg)
+            print('Message sent')
+            return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber,minlyft=minlyft,Query=Query)
 
 
 @app.route('/places', methods=['GET', 'POST'])
@@ -374,7 +382,7 @@ def locations_DELETE(location_id):
 def trips_POST():
     if request.method == 'POST':
 
-
+        global startLat, startLng, count, jsonarray, finalpath, test, midlength, startid, endId, sequence, endLat, endLng, endId, location
         # Get the data from Request Body
         request_trip = json.loads(request.data)
 
@@ -612,7 +620,7 @@ def trips_POST():
         dictstart = {}
         dictend = {}
 
-        global startLat, startLng, count, jsonarray, finalpath, test, midlength, startid, endId, sequence, endLat, endLng, endId, location
+
         count = 0
         jsonarray = {}
         finalpath = {}

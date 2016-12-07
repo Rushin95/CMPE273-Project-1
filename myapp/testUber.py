@@ -222,7 +222,7 @@ def Uber():
                     add2SUV = add2SUV + int(a2X)
             counter= counter+1
             break
-        finally:
+        except:
             return "No Data Found"
 
     uberX={}
