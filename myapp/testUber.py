@@ -221,7 +221,7 @@ def Uber():
                     a2X = addX.split("-")[-1]  # Second Value
                     add2SUV = add2SUV + int(a2X)
             counter= counter+1
-            break
+
         except:
             return "No Data Found"
 
