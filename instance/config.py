@@ -3,11 +3,9 @@ import os
 
 #Configure MySQL
 DB_USER = 'root'
-<<<<<<< HEAD
+
 DB_PASSWORD = 'supersecure'
-=======
-DB_PASSWORD = 'password'
->>>>>>> 96d0f011c0debc2d5dae593eb6afd463b66f9c55
+
 DB_NAME = 'development'
 #DB_HOSTNAME = 'mysqlserver'		#docker-compose.yml hostname
 DB_HOSTNAME = 'localhost'           #for local use
