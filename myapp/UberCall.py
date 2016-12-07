@@ -27,18 +27,21 @@ def ubercall(sLat,sLon,eLat,eLon):
     add1=0
     add2=0
     print"Hello from ubercall"
-    for it in dataX["prices"]:
-            if it["localized_display_name"] == "uberX":
-                distanceX = it["distance"]
-                addDistance1 = addDistance1 + distanceX
-                timeX = it["duration"]
-                addTime1 = addTime1 + timeX
-                intX = it["estimate"]
-                addX = intX.split("$")[-1]
-                a1X = addX.split("-")[0]  # First Value
-                add1 = add1 + int(a1X)
-                a2X = addX.split("-")[-1]  # Second Value
-                add2 = add2 + int(a2X)
-                final=((add1+add2)/2)
+    try:
+        for it in dataX["prices"]:
+                if it["localized_display_name"] == "uberX":
+                    distanceX = it["distance"]
+                    addDistance1 = addDistance1 + distanceX
+                    timeX = it["duration"]
+                    addTime1 = addTime1 + timeX
+                    intX = it["estimate"]
+                    addX = intX.split("$")[-1]
+                    a1X = addX.split("-")[0]  # First Value
+                    add1 = add1 + int(a1X)
+                    a2X = addX.split("-")[-1]  # Second Value
+                    add2 = add2 + int(a2X)
+                    final=((add1+add2)/2)
+    except:
+        return "No Data Found"
     print "Hello again"
     return str(final)

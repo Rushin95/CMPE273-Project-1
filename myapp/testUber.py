@@ -48,6 +48,8 @@ def Uber():
                 lng=key[1]['lng']
                 id= key[1]['id']
                 test=UberCall.ubercall(startLat,startLng,lat,lng)
+                if test == "No Data Found":
+                    return "No Data Found"
                 way[str(startid)+"-"+str(id)]=int(test)
                 print "way="+str(way)
             minvalue=min(way, key=way.get)

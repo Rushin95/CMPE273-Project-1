@@ -6,6 +6,7 @@ from forms import *
 from myapp import app, mail, db
 from decimal import Decimal
 
+
 def Lyft():
     global startLat, startLng, jsonarray, finalpath, test, midlength, startid, endId, sequence, endLat, endLng, endId, location
     jsonarray = {}
@@ -15,26 +16,25 @@ def Lyft():
     count = 0
     Query = Location.query.all();
 
-
     length = len(Query)
 
     print length
     for x in range(length):
-        if Query[x].is_end_point==0 : # MId Queryints value
-           dictmid={"lat":Query[x].lat,"lng":Query[x].lng,"id":Query[x].id}
-           jsonarray[Query[x].id]=dictmid
+        if Query[x].is_end_point == 0:  # MId Queryints value
+            dictmid = {"lat": Query[x].lat, "lng": Query[x].lng, "id": Query[x].id}
+            jsonarray[Query[x].id] = dictmid
 
-        elif Query[x].is_end_point==1 :# Start points value
-            startLat=str(Query[x].lat)
-            startLng=str(Query[x].lng)
-            startid=str(Query[x].id)
+        elif Query[x].is_end_point == 1:  # Start points value
+            startLat = str(Query[x].lat)
+            startLng = str(Query[x].lng)
+            startid = str(Query[x].id)
 
-        else:                           # End points value
-            endLat=str(Query[x].lat)
-            endLng=str(Query[x].lng)
-            endId=str(Query[x].id)
+        else:  # End points value
+            endLat = str(Query[x].lat)
+            endLng = str(Query[x].lng)
+            endId = str(Query[x].id)
 
-#-------------------------------------------------------------------------------------------------------------
+            # -------------------------------------------------------------------------------------------------------------
     print "jsonarray" + str(jsonarray)
 
     midL = {}
@@ -99,26 +99,24 @@ def Lyft():
 
     print "jsonarray" + str(jsonarray)
 
-
     # CREATING STRING FOR THE OPTIMIZED ROUTE
 
-    l= len(midL)
+    l = len(midL)
     strng = str(l)
 
     for x in range(l):
         strng += ',' + str(midL[x]['lat']) + ',' + str(midL[x]['lon'])
-    print 'string:'+ strng
+    print 'string:' + strng
 
     # -----------------------------------------------------------------
     # lyft api logic
     lat = []
     lng = []
     cords = strng.split(',')
-    
+
     # fetching the no of locations to be covered
     no_of_cords = int(cords[0])
     count = 0
-
 
     # setting the lat and lng list from the string given as a parameter
     while count < no_of_cords:
@@ -156,7 +154,7 @@ def Lyft():
                    'end_lng': lng[count + 1]}
         headers = {
             'Authorization': 'Bearer gAAAAABYOh2rXUfRCrbLM5kt_kICcQvAuyefz_9pJsgGhHQLhKnu3idO-pEgZN6xBWRqXyy0vaOFPse2Rk4i26RCUhKOBvYvnXAW17OwAGpmXdEzG_38O-sYbz9zd_OHdswBrRXFGKy9lBflP0eVWLP3rsCQJd1JuBFJdks2AfawYNAviW1wB2s=',
-            'Accept-Language': 'en_US','Content-Type': 'application/json',}
+            'Accept-Language': 'en_US', 'Content-Type': 'application/json', }
         stop = requests.get(
             'https://api.lyft.com/v1/cost?',
             headers=headers, params=payload)
@@ -164,40 +162,44 @@ def Lyft():
         result = stop.json()
         count += 1
 
-        # assigning values in the dictionary
-        for iteration in result["cost_estimates"]:
-            if iteration["ride_type"] == "lyft_plus":
-                lyft_plus["min_cost"] += iteration["estimated_cost_cents_min"]
-                lyft_plus["max_cost"] += iteration["estimated_cost_cents_max"]
-                lyft_plus["time"] += iteration["estimated_duration_seconds"]
-                lyft_plus["distance"] += Decimal(iteration["estimated_distance_miles"]* 0.01).quantize(Decimal("0.01"))
-                # yield lyft_plus
-            elif iteration["ride_type"] == "lyft":
-                lyft["min_cost"] += iteration["estimated_cost_cents_min"]
-                lyft["max_cost"] += iteration["estimated_cost_cents_max"]
-                lyft["time"] += iteration["estimated_duration_seconds"]
-                lyft["distance"] += Decimal(iteration["estimated_distance_miles"]* 0.01).quantize(Decimal("0.01"))
-                # yield lyft
-            elif iteration["ride_type"] == "lyft_premier":
-                lyft_premier["min_cost"] += iteration["estimated_cost_cents_min"]
-                lyft_premier["max_cost"] += iteration["estimated_cost_cents_max"]
-                lyft_premier["time"] += iteration["estimated_duration_seconds"]
-                lyft_premier["distance"] += Decimal(iteration["estimated_distance_miles"]* 0.01).quantize(Decimal("0.01"))
-                # yield lyft_premier
-    # FINDING THE AVERAGE COST
-    a = (lyft['max_cost'] + lyft['min_cost']) / 2
-    lyft['avg_cost'] = Decimal(a * 0.01).quantize(Decimal("0.01"))
-    b = (lyft_plus['max_cost'] + lyft_plus['min_cost']) / 2
-    lyft_plus['avg_cost'] = Decimal(b * 0.01).quantize(Decimal("0.01"))
-    c = (lyft_premier['max_cost'] + lyft_premier['min_cost']) / 2
-    lyft_premier['avg_cost'] = Decimal(c * 0.01).quantize(Decimal("0.01"))
+        if result["cost_estimates"] is not None:
+            # assigning values in the dictionary
+            for iteration in result["cost_estimates"]:
+                if iteration["ride_type"] == "lyft_plus":
+                    lyft_plus["min_cost"] += iteration["estimated_cost_cents_min"]
+                    lyft_plus["max_cost"] += iteration["estimated_cost_cents_max"]
+                    lyft_plus["time"] += iteration["estimated_duration_seconds"]
+                    lyft_plus["distance"] += round((iteration["estimated_distance_miles"]),2)
+                    # yield lyft_plus
+                elif iteration["ride_type"] == "lyft":
+                    lyft["min_cost"] += iteration["estimated_cost_cents_min"]
+                    lyft["max_cost"] += iteration["estimated_cost_cents_max"]
+                    lyft["time"] += iteration["estimated_duration_seconds"]
+                    lyft["distance"] += round((iteration["estimated_distance_miles"]),2)
+                    # yield lyft
+                elif iteration["ride_type"] == "lyft_premier":
+                    lyft_premier["min_cost"] += iteration["estimated_cost_cents_min"]
+                    lyft_premier["max_cost"] += iteration["estimated_cost_cents_max"]
+                    lyft_premier["time"] += iteration["estimated_duration_seconds"]
+                    lyft_premier["distance"] += round((iteration["estimated_distance_miles"]),2)
+                    # yield lyft_premier
 
-    lyft_premier["min_cost"] = Decimal(lyft_premier["min_cost"]* 0.01).quantize(Decimal("0.01"))
-    lyft["min_cost"] = Decimal(lyft["min_cost"]* 0.01).quantize(Decimal("0.01"))
-    lyft_plus["min_cost"] = Decimal(lyft_plus["min_cost"]* 0.01).quantize(Decimal("0.01"))
-    lyft_premier["max_cost"] = Decimal(lyft_premier["max_cost"]* 0.01).quantize(Decimal("0.01"))
-    lyft["max_cost"] = Decimal(lyft["max_cost"]* 0.01).quantize(Decimal("0.01"))
-    lyft_plus["max_cost"] = Decimal(lyft_plus["max_cost"]* 0.01).quantize(Decimal("0.01"))
+            # FINDING THE AVERAGE COST
+            a = (lyft['max_cost'] + lyft['min_cost']) / 200
+            # lyft['avg_cost'] = Decimal(a * 0.01).quantize(Decimal("0.01"))
+            lyft['avg_cost'] = round(a,2)
+
+            b = (lyft_plus['max_cost'] + lyft_plus['min_cost']) / 200
+            lyft_plus['avg_cost'] = round(b,2)
+            c = float(lyft_premier['max_cost']) + float(lyft_premier['min_cost']) / 200
+            lyft_premier['avg_cost'] = round(c,2)
+
+            lyft_premier["min_cost"] = round((lyft_premier["min_cost"] * 0.01),2)
+            lyft["min_cost"] = round((lyft["min_cost"] * 0.01),2)
+            lyft_plus["min_cost"] = round((lyft_plus["min_cost"] * 0.01),2)
+            lyft_premier["max_cost"] = round((lyft_premier["max_cost"] * 0.01),2)
+            lyft["max_cost"] = round((lyft["max_cost"] * 0.01),2)
+            lyft_plus["max_cost"] = round((lyft_plus["max_cost"] * 0.01),2)
 
     print "FULL TRIP STATISTICS"
     print "For lyft:", lyft
@@ -210,9 +212,8 @@ def Lyft():
     return all
 
 
-
 # --------------------------------------------------------------------------------------------------------------------
-def lyftcall(sLat,sLon,eLat,eLon):
+def lyftcall(sLat, sLon, eLat, eLon):
     global i, total_min_cost, total_max_cost, ride, locationlist
     payload = {'start_lat': sLat, 'start_lng': sLon, 'end_lat': eLat, 'end_lng': eLon}
     headers = {
@@ -239,5 +240,5 @@ def lyftcall(sLat,sLon,eLat,eLon):
             lyft["max_cost"] = iteration["estimated_cost_cents_max"]
             a = (lyft['max_cost'] + lyft['min_cost']) / 200
 
-    print 'a'+str(a)
+    print 'a' + str(a)
     return a

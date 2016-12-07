@@ -382,18 +382,17 @@ def locations_DELETE(location_id):
 @app.route('/trips', methods=['POST'])
 def trips_POST():
     if request.method == 'POST':
+        print 'INSIDE RESTFUL FUNCTION------------------------------------------------------------'
 
-        global startLat, startLng, count, jsonarray, finalpath, test, midlength, startid, endId, sequence, endLat, endLng, endId, location
         # Get the data from Request Body
         request_trip = json.loads(request.data)
 
         start_id = request_trip["start"].split('/')[2]
         end_id = request_trip["end"].split('/')[2]
         others_id = []
-
         for x in request_trip['others']:
             others_id.append(x.split('/')[2])
-
+        print 'request trip[other]:'+str(request_trip['others'])
         lat=[]
         lng=[]
         # first point
@@ -415,74 +414,130 @@ def trips_POST():
 
         Query = Location.query.all()
 
-#----------------------------------------------------------------------------------------------------
+        # UBER CALLING CODE---------------------------------------------------------------------------------------
+        uberdata = testUber.Uber()
+        print uberdata
+        print uberdata['uberX']['Miles']
 
-        # LYFT API CODE
-        jsonarray = []
+        # LYFT API CODE-----------------------------------------------------------------------------------------
+
+
+        jsonarray = {}
         dictstart = {}
         dictend = {}
+        finalpath = {}
+        count = 0
+        Query = Location.query.all();
+        global startLat, startLng, jsonarray, finalpath, test, midlength, startid, endId, sequence, endLat, endLng, endId, location
+
         length = len(Query)
-        is_waypoint_null = 1
+
         print length
         for x in range(length):
-            print jsonarray
-            if (Query[x].is_end_point == 0):
-                is_waypoint_null = 0
-                # dictmid['Address'] = Query[x].address+","+Query[x].city+","+Query[x].state
-                jsonarray.append(Query[x].address + "," + Query[x].city + "," + Query[x].state)
-                print "jsonarray" + str(jsonarray)
-            elif (Query[x].is_end_point == 1):
-                dictstart['Address'] = Query[x].address + "," + Query[x].city + "," + Query[x].state
-                source_string = ',' + str(Query[x].lat) + ',' + str(Query[x].lng)
-                print "dictstart=" + str(dictstart)
-            else:
-                dictend['Address'] = Query[x].address + "," + Query[x].city + "," + Query[x].state
-                print "dictend=" + str(dictend)
-                destination_string = ',' + str(Query[x].lat) + ',' + str(Query[x].lng)
-        if is_waypoint_null == 0:
+            if Query[x].is_end_point == 0 and str(Query[x].id) in others_id :  # MId Queryints value
+                dictmid = {"lat": Query[x].lat, "lng": Query[x].lng, "id": Query[x].id}
+                jsonarray[Query[x].id] = dictmid
 
-            URL = "https://maps.googleapis.com/maps/api/directions/json"
-            origin1 = "origin=" + dictstart['Address']
-            destination1 = "&destination=" + dictend['Address']
-            dictmidlen = len(jsonarray)
-            print "destination" + destination1
-            print "source" + origin1
-            test = ""
-            for y in range(dictmidlen):
-                test = test + "|" + jsonarray[y]
+            elif Query[x].is_end_point == 1 and str(Query[x].id) == str(start_id):  # Start points value
+                startLat = str(Query[x].lat)
+                startLng = str(Query[x].lng)
+                startid = str(Query[x].id)
 
-            waypoints1 = "&waypoints=optimize:true" + test
-            key1 = "&key=AIzaSyDZIkQ6cFu5xz7se91BzMCN-Rs3Uhwfov4"
-            para = origin1 + destination1 + waypoints1 + key1
-            req = requests.get(URL, params=para)
-            d3 = req.json()
-            way = d3["routes"][0]["waypoint_order"]
-            waylength = len(way)
-        elif is_waypoint_null == 1:
-            waylength = 0
-            print 'there are no way points'
-        latitude = []
-        longitude = []
-        strng = str(waylength + 2) + source_string
-        print 'waylength is ', waylength
-        if is_waypoint_null == 0:
-            for x in range(waylength):
-                Query = Location.query.filter_by(address=str(jsonarray[way[x]].split(",")[0])).first()
-                latitude.append(Query.lat)
-                longitude.append(Query.lng)
-                strng += ',' + str(Query.lat) + ',' + str(Query.lng)
-                print 'insideloop'
-                # return pstring
-        strng += destination_string
-        
+            elif Query[x].is_end_point == 2 and str(Query[x].id) == str(end_id):  # End points value
+                endLat = str(Query[x].lat)
+                endLng = str(Query[x].lng)
+                endId = str(Query[x].id)
+
+                # -------------------------------------------------------------------------------------------------------------
+        print "jsonarray" + str(jsonarray)
+
+        midL = {}
+        midlength = len(jsonarray)
+        if (int(midlength) > 0 and int(midlength) != 1):
+
+            while midlength > 1:
+                print"Loop" + str(count)
+                way = {}
+                for key in jsonarray.iteritems():
+                    lat = key[1]['lat']
+                    lng = key[1]['lng']
+                    id = key[1]['id']
+                    test = TestLyft.lyftcall(startLat, startLng, lat, lng)
+
+                    way[str(startid) + "-" + str(id)] = int(test)
+                    print "way=" + str(way)
+                minvalue = min(way, key=way.get)
+                test = int(minvalue.split("-")[-1])
+                print "test" + str(test)
+                if test in jsonarray: del jsonarray[test]
+                print jsonarray
+                midlength = len(jsonarray)
+                print "midlength" + str(midlength)
+                Data = Location.query.filter_by(id=test).first()
+                startLat = Data.lat
+                startLng = Data.lng
+                startid = Data.id
+                print str(startLat)
+                print str(startLng)
+                count = count + 1
+                finalpath[count] = minvalue
+
+            count = count + 1
+            finalpath[count] = str(test) + "-" + str(jsonarray.keys()[0])
+            count = count + 1
+            finalpath[count] = str(jsonarray.keys()[0]) + "-" + str(endId)
+            print "Finalpath" + str(finalpath)
+            test = {}
+            sequence = 1
+            for key in finalpath.iteritems():
+                test[sequence] = str(key[1].split("-")[0])
+                sequence = sequence + 1
+            location = 0;
+            id_set = []
+            for key in test.iteritems():
+                FinalQuery = Location.query.filter_by(id=int(key[1])).first()
+                midL[location] = {'lat': FinalQuery.lat, 'lon': FinalQuery.lng}
+                id_set.append(FinalQuery.id)
+                location += 1
+
+            midL[location] = {'lat': endLat, 'lon': endLng}
+        elif (int(midlength) == 1):
+            print jsonarray.values()[0]['lat']
+            midL[0] = {'lat': startLat, 'lon': startLng}
+            midL[1] = {'lat': jsonarray.values()[0]['lat'], 'lon': jsonarray.values()[0]['lng']}
+            midL[2] = {'lat': endLat, 'lon': endLng}
+            print "json with One Location" + str(jsonarray)
+            id_set=[]
+
+
+        else:
+            midL[0] = {'lat': startLat, 'lon': startLng}
+            midL[1] = {'lat': endLat, 'lon': endLng}
+
+        print "MIDDLE" + str(midL)
+
+
+        print "jsonarray" + str(jsonarray)
+
+        # CREATING STRING FOR THE OPTIMIZED ROUTE
+
+        l = len(midL)
+        strng = str(l)
+
+        for x in range(l):
+            strng += ',' + str(midL[x]['lat']) + ',' + str(midL[x]['lon'])
+        print 'string:' + strng
+
+        # -----------------------------------------------------------------
         # lyft api logic
         lat = []
         lng = []
         cords = strng.split(',')
+
         # fetching the no of locations to be covered
         no_of_cords = int(cords[0])
         count = 0
-        
+
         # setting the lat and lng list from the string given as a parameter
         while count < no_of_cords:
             lat.append(cords[(2 * count) + 1])
@@ -533,20 +588,20 @@ def trips_POST():
                     lyft_plus["min_cost"] += iteration["estimated_cost_cents_min"]
                     lyft_plus["max_cost"] += iteration["estimated_cost_cents_max"]
                     lyft_plus["time"] += iteration["estimated_duration_seconds"]
-                    lyft_plus["distance"] += Decimal(iteration["estimated_distance_miles"] * 0.01).quantize(
+                    lyft_plus["distance"] += Decimal(iteration["estimated_distance_miles"]).quantize(
                         Decimal("0.01"))
                     # yield lyft_plus
                 elif iteration["ride_type"] == "lyft":
                     lyft["min_cost"] += iteration["estimated_cost_cents_min"]
                     lyft["max_cost"] += iteration["estimated_cost_cents_max"]
                     lyft["time"] += iteration["estimated_duration_seconds"]
-                    lyft["distance"] += Decimal(iteration["estimated_distance_miles"] * 0.01).quantize(Decimal("0.01"))
+                    lyft["distance"] += Decimal(iteration["estimated_distance_miles"]).quantize(Decimal("0.01"))
                     # yield lyft
                 elif iteration["ride_type"] == "lyft_premier":
                     lyft_premier["min_cost"] += iteration["estimated_cost_cents_min"]
                     lyft_premier["max_cost"] += iteration["estimated_cost_cents_max"]
                     lyft_premier["time"] += iteration["estimated_duration_seconds"]
-                    lyft_premier["distance"] += Decimal(iteration["estimated_distance_miles"] * 0.01).quantize(
+                    lyft_premier["distance"] += Decimal(iteration["estimated_distance_miles"]).quantize(
                         Decimal("0.01"))
                     # yield lyft_premier
         # FINDING THE AVERAGE COST
@@ -568,37 +623,68 @@ def trips_POST():
         print "For lyft:", lyft
         print "For lyft_plus:", lyft_plus
         print "For lyft_premier:", lyft_premier
-        all={'lyft':lyft,'lyft_plus':lyft_plus,'lyft_premier':lyft_premier, 'string':strng,'way':way}
-        # all = {'lyft': lyft, 'lyft_plus': lyft_plus, 'lyft_premier': lyft_premier}
+        # all={'lyft':lyft,'lyft_plus':lyft_plus,'lyft_premier':lyft_premier, 'string':strng,'way':way}
+        all = {'lyft': lyft, 'lyft_plus': lyft_plus, 'lyft_premier': lyft_premier}
         print all
         print 'RETURNING FROM THE FUNCTION'
-        print 'NOW MAKING RESTFUL RESULT'
+
+        # --------------------------------------------------------------------------------------------------------
 
 
-        #CALLING LYFT CODE
-        # lyft_result = TestLyft.Lyft(Query)
+#----------------------------------------------------------------------------------------------------------------------------------------
+        b_route = []
+
+        del midL[0]
+        m = len(midL)
+        del midL[m]
+
+        if len(request_trip['others']) == 0:
+            print 'no midpoint'
+        elif(len(id_set) == 0):
+            r = request_trip['others'][0]
+            z = r.split('/')[2]
+            b_route.append('/locations/' + str(z))
+        else:
+            print 'id_set:'+str(id_set)
+            print 'midl:'+str(midL)+'len:'+str(len(midL))
+            x = 1
+            print midL[x]['lat']
 
 
-        way = all["way"]
-        best_route =[]
-        best_route.append(request_trip["start"])
-        for x in way:
-            best_route.append(request_trip["others"][int(x)])
-        best_route.append(request_trip["end"])
+            while x<=(len(id_set)-1) :
+                a = id_set[x]
+                q = Location.query.filter_by(id=a).first()
+                print 'q:'+str(q)
+                b_route.append('/locations/'+str(q.id))
+                x += 1
+        # best_route =[]
+        # best_route.append(request_trip["start"])
+        # way = all["way"]
+        # print 'way'+str(way)
+        #
+        # for x in way:
+        #     print 'way in loop:'+str(x)
+        #     print 'reqtrip[other]:'+str(request_trip["others"])
+        #     best_route.append(request_trip["others"][int(x)])
+        # best_route.append(request_trip["end"])
 
-        # GETTING THE RESULT FORMAT READY
+        # INSERTING INTO DB
+        t = Trips(str(request_trip['start']),str(b_route),str(request_trip['end']),'uber',str(lyft))
+        db.session.add(t)
+        db.session.commit()
+        # GETTING THE RESULT FORMAT READY--------------------------------------------------------------------------
         final_result = {
-            "id": 200000,
+            "id": t.id,
             "start": request_trip["start"],
-            "best_route_by_costs": best_route,
+            "best_route_by_costs": b_route,
             "providers": [
                 {
                     "name": "Uber",
-                    "total_costs_by_cheapest_car_type": 125,
+                    "total_costs_by_cheapest_car_type": float(uberdata['uberX']['Price']),
                     "currency_code": "USD",
-                    "total_duration": 640,
+                    "total_duration": int(float(uberdata['uberX']['Time'])),
                     "duration_unit": "minute",
-                    "total_distance": 25.05,
+                    "total_distance": float(uberdata['uberX']['Miles']),
                     "distance_unit": "mile"
                 },
                 {
@@ -607,294 +693,12 @@ def trips_POST():
                     "currency_code": "USD",
                     "total_duration": int(lyft['time'])/60,
                     "duration_unit": "minute",
-                    "total_distance": float(lyft['distance']),
+                    "total_distance": round(lyft['distance'],2),
                     "distance_unit": "mile"
                 }
             ],
             "end": request_trip["end"]
 
         }
-
-        print final_result
-#------------------------------------------------------------------------------------------------------------------------------
-        #Uber Restful
-        dictstart = {}
-        dictend = {}
-
-
-        count = 0
-        jsonarray = {}
-        finalpath = {}
-        Query = Location.query.all()
-        length = len(Query)
-
-        # Fetching the data from database.
-        ################################################################################################################
-        for x in range(length):
-            if Query[x].is_end_point == 0 and str(Query[x].id) in others_id:  # MId Queryints value
-                dictmid = {"lat": Query[x].lat, "lng": Query[x].lng, "id": Query[x].id}
-                jsonarray[Query[x].id] = dictmid
-
-            elif Query[x].is_end_point == 1 and str(Query[x].id) == str(start_id):  # Start points value
-                startLat = str(Query[x].lat)
-                startLng = str(Query[x].lng)
-                startid = str(Query[x].id)
-
-            elif Query[x].is_end_point == 2 and str(Query[x].id) == str(end_id):  # End points value
-                endLat = str(Query[x].lat)
-                endLng = str(Query[x].lng)
-                endId = str(Query[x].id)
- ################################################################################################################
-
-        print "jsonarray" + str(jsonarray)
-        midL = {}
-        midlength = len(jsonarray)
-        if (int(midlength) > 0 and int(midlength) != 1):
-
-            while midlength > 1:
-                print"Loop" + str(count)
-                way = {}
-                for key in jsonarray.iteritems():
-                    lat = key[1]['lat']
-                    lng = key[1]['lng']
-                    id = key[1]['id']
-                    test = UberCall.ubercall(startLat, startLng, lat, lng)
-                    way[str(startid) + "-" + str(id)] = int(test)
-                    print "way=" + str(way)
-                minvalue = min(way, key=way.get)
-                test = int(minvalue.split("-")[-1])
-                print "test" + str(test)
-                if test in jsonarray: del jsonarray[test]
-                print jsonarray
-                midlength = len(jsonarray)
-                print "midlength" + str(midlength)
-                Data = Location.query.filter_by(id=test).first()
-                startLat = Data.lat
-                startLng = Data.lng
-                startid = Data.id
-                print str(startLat)
-                print str(startLng)
-                count = count + 1
-                finalpath[count] = minvalue
-
-            count = count + 1
-            finalpath[count] = str(test) + "-" + str(jsonarray.keys()[0])
-            count = count + 1
-            finalpath[count] = str(jsonarray.keys()[0]) + "-" + str(endId)
-            print "Finalpath" + str(finalpath)
-            test = {}
-            sequence = 1
-            for key in finalpath.iteritems():
-                test[sequence] = str(key[1].split("-")[0])
-                sequence = sequence + 1
-            location = 0
-            for key in test.iteritems():
-                FinalQuery = Location.query.filter_by(id=int(key[1])).first()
-                midL[location] = {'lat': FinalQuery.lat, 'lon': FinalQuery.lng, 'id': FinalQuery.id}
-                location += 1
-
-            midL[location] = {'lat': endLat, 'lon': endLng, 'id': endId}
-        elif (int(midlength) == 1):
-            print jsonarray.values()[0]['lat']
-            midL[0] = {'lat': startLat, 'lon': startLng, 'id': startid}
-            midL[1] = {'lat': jsonarray.values()[0]['lat'], 'lon': jsonarray.values()[0]['lng'],
-                       'id': jsonarray.values()[0]['id']}
-            midL[2] = {'lat': endLat, 'lon': endLng, 'id': endId}
-            print "json with One Location" + str(jsonarray)
-
-        else:
-            midL[0] = {'lat': startLat, 'lon': startLng, 'id': startid}
-            midL[1] = {'lat': endLat, 'lon': endLng, 'id': endId}
-
-        print "MIDDLE" + str(midL)
-
-        print "jsonarray" + str(jsonarray)
-        ################################################################################################################
-        print("#######################################")
-        # Uber API Pricing Calculations
-
-        # URL of Uber API.
-        URL = "https://api.uber.com/v1.2/estimates/price"
-        # Header of Uber API.
-        headers = {
-            'Authorization': 'Token aTS7ifSRpVChp5-VsDkVxTrlZyUSA9g2qdH81E2k',
-            'Accept-Language': 'en_US',
-            'Content-Type': 'application/json',
-        }
-        vari = len(midL)
-        print midL
-        print "mid Values"
-        print midL
-        print "Ended"
-
-        print "Calculaion"
-        ####
-
-
-        maxLen = len(midL)
-        counter = 0
-        add1 = 0
-        add2 = 0
-        addTime1 = 0
-        addDistance1 = 0
-        flag = 0  ####### Value of flag defined
-        # uberXL
-        addDistance2 = 0
-        addTime2 = 0
-        add1XL = 0
-        add2XL = 0
-        # uberSelect
-        addDistance3 = 0
-        addTime3 = 0
-        add1Slt = 0
-        add2Slt = 0
-        # uberBlack
-        addDistance4 = 0
-        addTime4 = 0
-        add1Blk = 0
-        add2Blk = 0
-        # uberSUV
-        addDistance5 = 0
-        addTime5 = 0
-        add1SUV = 0
-        add2SUV = 0
-        fin = {"No Data Found"}
-        # Calculation for uberX
-        while counter < (maxLen - 1):
-            sLat = midL.values()[counter].get('lat')
-            sLon = midL.values()[counter].get('lon')
-            eLat = midL.values()[counter + 1].get('lat')
-            eLon = midL.values()[counter + 1].get('lon')
-            paraX = {'start_latitude': sLat, 'start_longitude': sLon, 'end_latitude': eLat, 'end_longitude': eLon}
-            rX = requests.get(URL, params=paraX, headers=headers)
-            dataX = rX.json()
-            print str(dataX)
-            try:
-
-                for it in dataX["prices"]:
-                    if it["localized_display_name"] == "uberX":
-                        distanceX = it["distance"]
-                        addDistance1 = addDistance1 + distanceX
-                        timeX = it["duration"]
-                        addTime1 = addTime1 + timeX
-                        intX = it["estimate"]
-                        addX = intX.split("$")[-1]
-                        a1X = addX.split("-")[0]  # First Value
-                        add1 = add1 + int(a1X)
-                        a2X = addX.split("-")[-1]  # Second Value
-                        add2 = add2 + int(a2X)
-
-                    elif it["localized_display_name"] == "uberXL":
-                        distanceX = it["distance"]
-                        addDistance2 = addDistance2 + distanceX
-                        timeX = it["duration"]
-                        addTime2 = addTime2 + timeX
-                        intX = it["estimate"]
-                        addX = intX.split("$")[-1]
-                        a1X = addX.split("-")[0]  # First Value
-                        add1XL = add1XL + int(a1X)
-                        a2X = addX.split("-")[-1]  # Second Value
-                        add2XL = add2XL + int(a2X)
-
-                    elif it["localized_display_name"] == "SELECT":
-                        distanceX = it["distance"]
-                        addDistance3 = addDistance3 + distanceX
-                        timeX = it["duration"]
-                        addTime3 = addTime3 + timeX
-                        intX = it["estimate"]
-                        addX = intX.split("$")[-1]
-                        a1X = addX.split("-")[0]  # First Value
-                        add1Slt = add1Slt + int(a1X)
-                        a2X = addX.split("-")[-1]  # Second Value
-                        add2Slt = add2Slt + int(a2X)
-
-                    elif it["localized_display_name"] == "BLACK":
-                        distanceX = it["distance"]
-                        addDistance4 = addDistance4 + distanceX
-                        timeX = it["duration"]
-                        addTime4 = addTime4 + timeX
-                        intX = it["estimate"]
-                        addX = intX.split("$")[-1]
-                        a1X = addX.split("-")[0]  # First Value
-                        add1Blk = add1Blk + int(a1X)
-                        a2X = addX.split("-")[-1]  # Second Value
-                        add2Blk = add2Blk + int(a2X)
-
-                    elif it["localized_display_name"] == "SUV":
-                        distanceX = it["distance"]
-                        addDistance5 = addDistance5 + distanceX
-                        timeX = it["duration"]
-                        addTime5 = addTime5 + timeX
-                        intX = it["estimate"]
-                        addX = intX.split("$")[-1]
-                        a1X = addX.split("-")[0]  # First Value
-                        add1SUV = add1SUV + int(a1X)
-                        a2X = addX.split("-")[-1]  # Second Value
-                        add2SUV = add2SUV + int(a2X)
-                counter = counter + 1
-                break
-            finally:
-                return fin
-
-        uberX = {}
-        uberXL = {}
-        uberSLT = {}
-        uberBLK = {}
-        uberSUV = {}
-        uberX['Price'] = str(0)
-        uberX['Time'] = str(0)
-        uberX['Miles'] = str(0)
-
-        uberXL['Price'] = str(0)
-        uberXL['Time'] = str(0)
-        uberXL['Miles'] = str(0)
-
-        uberSLT['Price'] = str(0)
-        uberSLT['Time'] = str(0)
-        uberSLT['Miles'] = str(0)
-
-        uberBLK['Price'] = str(0)
-        uberBLK['Time'] = str(0)
-        uberBLK['Miles'] = str(0)
-
-        uberSUV['Price'] = str(0)
-        uberSUV['Time'] = str(0)
-        uberSUV['Miles'] = str(0)
-
-        uberX['Price'] = str((add1 + add2) / 2)
-        uberX['Time'] = str(float(addTime1 / 60))
-        uberX['Miles'] = str(addDistance1)
-
-
-        uberXL['Price'] = str((add1XL + add2XL) / 2)
-        uberXL['Time'] = str(float(addTime2 / 60))
-        uberXL['Miles'] = str(addDistance2)
-
-
-        uberSLT['Price'] = str((add1Slt + add2Slt) / 2)
-        uberSLT['Time'] = str(float(addTime3 / 60))
-        uberSLT['Miles'] = str(addDistance3)
-
-
-        uberBLK['Price'] = str((add1Blk + add2Blk) / 2)
-        uberBLK['Time'] = str(float(addTime4 / 60))
-        uberBLK['Miles'] = str(addDistance4)
-
-
-        uberSUV['Price'] = str((add1SUV + add1SUV) / 2)
-        uberSUV['Time'] = str(float(addTime5 / 60))
-        uberSUV['Miles'] = str(addDistance5)
-
-        ##
-        print("UberX :" + uberX['Price'] + uberSUV['Price'])
-        ##
-        ################################################################################################################
-
-        if vari == 0:
-            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK, 'uberSUV': uberSUV}
-        else:
-            final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK,'uberSUV': uberSUV, 'OptimizedRoute': midL}
-
-        uberdata= final
-
+        print 'FINAL RESULT'+str(final_result)
         return make_response(json.dumps(final_result), 200)
