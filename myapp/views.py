@@ -169,8 +169,9 @@ def places():
     form = PlacesForm()
 
     # Create a User by default
-    user = User.query.filter_by(email=session['email']).first()
-
+    Check=len(User.query.all())
+    if(Check > 0):
+        user = User.query.filter_by(email=session['email']).first()
     my_markers = { icons.dots.green: [], icons.dots.red: [] }
 
     # Import markers from Locations on DB
