@@ -36,56 +36,66 @@ def Lyft():
 #-------------------------------------------------------------------------------------------------------------
     print "jsonarray" + str(jsonarray)
 
-    midlength = len(jsonarray)
-    while midlength > 1:
-        print"Loop" + str(count)
-        way = {}
-        for key in jsonarray.iteritems():
-            lat = key[1]['lat']
-            lng = key[1]['lng']
-            id = key[1]['id']
-            test = lyftcall(startLat, startLng, lat, lng)
-            way[str(startid) + "-" + str(id)] = int(test)
-            print "way=" + str(way)
-        minvalue = min(way, key=way.get)
-        test = int(minvalue.split("-")[-1])
-        print "test" + str(test)
-        if test in jsonarray: del jsonarray[test]
-        print jsonarray
-        midlength = len(jsonarray)
-        print "midlength" + str(midlength)
-        Data = Location.query.filter_by(id=test).first()
-        startLat = Data.lat
-        startLng = Data.lng
-        startid = Data.id
-        print str(startLat)
-        print str(startLng)
-        count = count + 1
-        finalpath[count] = minvalue
-
-    count = count + 1
-    finalpath[count] = str(test) + "-" + str(jsonarray.keys()[0])
-    count = count + 1
-    finalpath[count] = str(jsonarray.keys()[0]) + "-" + str(endId)
-    print "Finalpath" + str(finalpath)
-    test = {}
-    sequence = 1
-    for key in finalpath.iteritems():
-        test[sequence] = str(key[1].split("-")[0])
-        sequence = sequence + 1
-    location = 0;
     midL = {}
-    for key in test.iteritems():
-        FinalQuery = Location.query.filter_by(id=int(key[1])).first()
-        midL[location] = {'lat': FinalQuery.lat, 'lon': FinalQuery.lng}
-        location += 1
+    midlength = len(jsonarray)
+    if (int(midlength) > 0 and int(midlength) != 1):
 
-    midL[location] = {'lat': endLat, 'lon': endLng}
+        while midlength > 1:
+            print"Loop" + str(count)
+            way = {}
+            for key in jsonarray.iteritems():
+                lat = key[1]['lat']
+                lng = key[1]['lng']
+                id = key[1]['id']
+                test = lyftcall(startLat, startLng, lat, lng)
+                way[str(startid) + "-" + str(id)] = int(test)
+                print "way=" + str(way)
+            minvalue = min(way, key=way.get)
+            test = int(minvalue.split("-")[-1])
+            print "test" + str(test)
+            if test in jsonarray: del jsonarray[test]
+            print jsonarray
+            midlength = len(jsonarray)
+            print "midlength" + str(midlength)
+            Data = Location.query.filter_by(id=test).first()
+            startLat = Data.lat
+            startLng = Data.lng
+            startid = Data.id
+            print str(startLat)
+            print str(startLng)
+            count = count + 1
+            finalpath[count] = minvalue
+
+        count = count + 1
+        finalpath[count] = str(test) + "-" + str(jsonarray.keys()[0])
+        count = count + 1
+        finalpath[count] = str(jsonarray.keys()[0]) + "-" + str(endId)
+        print "Finalpath" + str(finalpath)
+        test = {}
+        sequence = 1
+        for key in finalpath.iteritems():
+            test[sequence] = str(key[1].split("-")[0])
+            sequence = sequence + 1
+        location = 0;
+        for key in test.iteritems():
+            FinalQuery = Location.query.filter_by(id=int(key[1])).first()
+            midL[location] = {'lat': FinalQuery.lat, 'lon': FinalQuery.lng}
+            location += 1
+
+        midL[location] = {'lat': endLat, 'lon': endLng}
+    elif (int(midlength) == 1):
+        print jsonarray.values()[0]['lat']
+        midL[0] = {'lat': startLat, 'lon': startLng}
+        midL[1] = {'lat': jsonarray.values()[0]['lat'], 'lon': jsonarray.values()[0]['lng']}
+        midL[2] = {'lat': endLat, 'lon': endLng}
+        print "json with One Location" + str(jsonarray)
+
+    else:
+        midL[0] = {'lat': startLat, 'lon': startLng}
+        midL[1] = {'lat': endLat, 'lon': endLng}
 
     print "MIDDLE" + str(midL)
 
-    print "test" + str(test)
-    print "way" + str(way)
     print "jsonarray" + str(jsonarray)
 
 
