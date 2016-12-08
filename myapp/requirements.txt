@@ -10,3 +10,4 @@ Flask-MySQLdb
 bcrypt
 flask_googlemaps
 pdfkit
+wkhtmltopdf
