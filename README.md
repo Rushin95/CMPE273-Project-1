@@ -6,7 +6,7 @@ Final Project CMPE273 class
 2. Install and import all project requirements as mentioned in requirements.txt file.
 3. Change the DB_PASSWORD as your database password in:
    Instance->config.py
-4. Make run.py as the starting poin.
+4. Make run.py as the starting point.
 You're good to go then.
 
 # Algorithm
