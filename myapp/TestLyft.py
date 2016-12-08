@@ -172,22 +172,22 @@ def Lyft():
                     lyft_premier["distance"] += round((iteration["estimated_distance_miles"]),2)
                     # yield lyft_premier
 
-            # FINDING THE AVERAGE COST
-            a = (lyft['max_cost'] + lyft['min_cost']) / 200
-            # lyft['avg_cost'] = Decimal(a * 0.01).quantize(Decimal("0.01"))
-            lyft['avg_cost'] = round(a,2)
+    # FINDING THE AVERAGE COST
+    a = (lyft['max_cost'] + lyft['min_cost']) / 200
+    # lyft['avg_cost'] = Decimal(a * 0.01).quantize(Decimal("0.01"))
+    lyft['avg_cost'] = round(a,2)
 
-            b = (lyft_plus['max_cost'] + lyft_plus['min_cost']) / 200
-            lyft_plus['avg_cost'] = round(b,2)
-            c = float(lyft_premier['max_cost']) + float(lyft_premier['min_cost']) / 200
-            lyft_premier['avg_cost'] = round(c,2)
+    b = (lyft_plus['max_cost'] + lyft_plus['min_cost']) / 200
+    lyft_plus['avg_cost'] = round(b,2)
+    c = float(lyft_premier['max_cost']) + float(lyft_premier['min_cost']) / 200
+    lyft_premier['avg_cost'] = round(c,2)
 
-            lyft_premier["min_cost"] = round((lyft_premier["min_cost"] * 0.01),2)
-            lyft["min_cost"] = round((lyft["min_cost"] * 0.01),2)
-            lyft_plus["min_cost"] = round((lyft_plus["min_cost"] * 0.01),2)
-            lyft_premier["max_cost"] = round((lyft_premier["max_cost"] * 0.01),2)
-            lyft["max_cost"] = round((lyft["max_cost"] * 0.01),2)
-            lyft_plus["max_cost"] = round((lyft_plus["max_cost"] * 0.01),2)
+    lyft_premier["min_cost"] = round((lyft_premier["min_cost"] * 0.01),2)
+    lyft["min_cost"] = round((lyft["min_cost"] * 0.01),2)
+    lyft_plus["min_cost"] = round((lyft_plus["min_cost"] * 0.01),2)
+    lyft_premier["max_cost"] = round((lyft_premier["max_cost"] * 0.01),2)
+    lyft["max_cost"] = round((lyft["max_cost"] * 0.01),2)
+    lyft_plus["max_cost"] = round((lyft_plus["max_cost"] * 0.01),2)
 
     print "FULL TRIP STATISTICS"
     print "For lyft:", lyft
