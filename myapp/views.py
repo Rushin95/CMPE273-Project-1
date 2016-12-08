@@ -145,7 +145,7 @@ def trip():
                                       """ % ("Trip-Planner app", 'master@trip_planner.com', message_route)
             mail.send(msg)
             print('Message sent')
-            return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber,minlyft=minlyft,Query=Query)
+            return render_template('Results.html',lyft=lyftdata,length=length,uber=uberdata,min=minuber,minlyft=minlyft,Query=Query,way_set=final_dict)
 
 
 @app.route('/places', methods=['GET', 'POST'])

@@ -228,5 +228,4 @@ def lyftcall(sLat, sLon, eLat, eLon):
             lyft["max_cost"] = iteration["estimated_cost_cents_max"]
             a = (lyft['max_cost'] + lyft['min_cost']) / 200
 
-    print 'a' + str(a)
     return a

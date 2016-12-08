@@ -6,13 +6,15 @@
        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
      <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-    {% for Q in Query %}
-    <input type="" id="pck" value="{{Q.address}},{{Q.city}},{{Q.state}},{{Q.zip}}">
-    {% endfor%}
+    <select multiple id="waypoints">
+        {% for Q in way_set.iteritems() %}
+        <option value="{{Q[1]}}" selected></option>
+        {% endfor%}
+    </select>
  <style>
-  #pck{
-display:none;
-}
+ #waypoints{
+ display:none;
+ }
 #cheap{
     color: red;
 }
@@ -176,54 +178,59 @@ display:none;
     <h1 align="center">No Address Added.Cannot plan a Trip.!!!</h1>
 {% endif %}
 </body>
-<script >
-      function initMap()
-      {
-          var map = new google.maps.Map(document.getElementById('map'), {
+
+<script>
+    function initMap() {
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 10,
           center: {lat: -34.397, lng: 150.644}
         });
-        var geocoder = new google.maps.Geocoder();
-        geocodeAddress(geocoder, map);
+        directionsDisplay.setMap(map);
+
+           calculateAndDisplayRoute(directionsService, directionsDisplay);
+    }
+
+      function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+
+       var waypts = [];
+        var checkboxArray = document.getElementById('waypoints');
+        for (var i = 1; i < (checkboxArray.length-1); i++) {
+          if (checkboxArray.options[i].selected) {
+            waypts.push({
+              location: checkboxArray[i].value,
+              stopover: true
+                         });
+                                                 }
+                                                         }
+        console.log(waypts);
+
+
+        directionsService.route({
+          origin: checkboxArray[0].value,
+          destination: checkboxArray[checkboxArray.length-1].value,
+          <!--origin: start,-->
+          <!--destination: end,-->
+
+          waypoints: waypts,
+          optimizeWaypoints: false,
+          travelMode: 'DRIVING'
+        }, function(response, status) {
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response);
+            var route = response.routes[0];
+
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
       }
 
-        var locations=[]
-        e = document.getElementsByTagName('input');
-        for (i = 0; i < e.length+1; i++){
-            test=e[i].value;
-            locations.push(test);
 
-        }
-        function geocodeAddress(geocoder, resultsMap) {
-        var pickup = sessionStorage.getItem('PickUp');
-        var drop =   sessionStorage.getItem('Drop');
-        var bounds = new google.maps.LatLngBounds();
-        a=locations.length;
-        for(i=0;i<a;i++)
-        {
-                var address = locations[i];
-                geocoder.geocode({'address': address}, function(results, status)
-                {
-                  if (status === 'OK')
-                  {
-                    var marker = new google.maps.Marker({
-                      map: resultsMap,
-                      position: results[0].geometry.location
-                    });
-                    loc = new google.maps.LatLng(marker.position.lat(), marker.position.lng());
 
-                    bounds.extend(loc);
-                    resultsMap.fitBounds(bounds);
-                    resultsMap.panToBounds(bounds);
-                    }
-                  else
-                  {
-                    alert('Geocode was not successful for the following reason: ' + status);
-                  }
-                });
-            }
-      }
 </script>
+
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBn0gFUveJxGtZPXUm13w-DB85ALtcMy3s&callback=initMap">
     </script>
