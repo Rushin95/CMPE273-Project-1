@@ -1,6 +1,28 @@
 # CMPE273-Project
 Final Project CMPE273 class
 
+##############Installation##############
+1. Clone it or download the file on your system.
+2. Install and import all project requirements as mentioned in requirements.txt file.
+3. Change the DB_PASSWORD as your database password in:
+   Instance->config.py
+4. Make run.py as the starting poin.
+You're good to go then.
+########################################
+### Algorithm
+1. We've implemented our own version of algorithm from Travelling salseman probelm and Dijkstra's algorithm.
+2. We're calculating best route based on the price.
+3. Starting with comparing price of 1st value with each and every middle points, selecting the route which is taking the least cost.
+4. Then taking that travesed point and calculating with others in a loop and making our best optimized route in dynamic way.
+########################################
+# Calculation
+After finding optmized path
+1. We're calling uber and lyft API's to calculate price of available transport type like Uber X, Uber XL, Uber Select, Lyft, Lyft Plus etc.
+2. Implemented and transformed google maps path draw function, to draw our calculated optimized path and show it as result.
+####################
+
+As this is our first iteration of delivery, we tried to do error handling. It might wont work for some extream cases, but we tried to do our best.
+
 ## 2. Trip Planner using Uber vs Lyft's Price Estimation
 
 ### Requirement
