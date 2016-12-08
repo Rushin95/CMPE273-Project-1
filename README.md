@@ -8,7 +8,7 @@ Final Project CMPE273 class
    Instance->config.py
 4. Make run.py as the starting poin.
 You're good to go then.
-########################################
+
 ### Algorithm
 1. We've implemented our own version of algorithm from Travelling salseman probelm and Dijkstra's algorithm.
 2. We're calculating best route based on the price.
