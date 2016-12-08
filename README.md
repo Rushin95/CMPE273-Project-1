@@ -17,6 +17,7 @@ You're good to go then.
 
 # Calculation
 After finding optmized path
+
 1. We're calling uber and lyft API's to calculate price of available transport type like Uber X, Uber XL, Uber Select, Lyft, Lyft Plus etc.
 2. Implemented and transformed google maps path draw function, to draw our calculated optimized path and show it as result.
 
