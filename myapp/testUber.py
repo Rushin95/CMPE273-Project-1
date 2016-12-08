@@ -51,20 +51,14 @@ def Uber():
                 if test == "No Data Found":
                     return "No Data Found"
                 way[str(startid)+"-"+str(id)]=int(test)
-                print "way="+str(way)
             minvalue=min(way, key=way.get)
             test=int(minvalue.split("-")[-1])
-            print "test"+str(test)
             if test in jsonarray: del jsonarray[test]
-            print jsonarray
             midlength=len(jsonarray)
-            print "midlength"+str(midlength)
             Data=Location.query.filter_by(id=test).first()
             startLat=Data.lat
             startLng=Data.lng
             startid=Data.id
-            print str(startLat)
-            print str(startLng)
             count=count+1
             finalpath[count]=minvalue
 
@@ -72,13 +66,12 @@ def Uber():
         finalpath[count]=str(test)+"-"+str(jsonarray.keys()[0])
         count=count+1
         finalpath[count]=str(jsonarray.keys()[0])+"-"+str(endId)
-        print "Finalpath"+str(finalpath)
         test={}
         sequence=1
         for key in finalpath.iteritems():
             test[sequence]=str(key[1].split("-")[0])
             sequence=sequence+1
-        location=0;
+        location=0
         for key in test.iteritems():
             FinalQuery=Location.query.filter_by(id=int(key[1])).first()
             midL[location]={'lat':FinalQuery.lat,'lon':FinalQuery.lng,'id':FinalQuery.id}
@@ -86,22 +79,13 @@ def Uber():
 
         midL[location]={'lat':endLat,'lon':endLng,'id':endId}
     elif(int(midlength)==1):
-        print jsonarray.values()[0]['lat']
         midL[0]={'lat':startLat,'lon':startLng,'id':startid}
         midL[1]={'lat':jsonarray.values()[0]['lat'],'lon':jsonarray.values()[0]['lng'],'id':jsonarray.values()[0]['id']}
         midL[2]={'lat':endLat,'lon':endLng,'id':endId}
-        print "json with One Location"+str(jsonarray)
 
     else:
         midL[0]={'lat':startLat,'lon':startLng,'id':startid}
         midL[1]={'lat':endLat,'lon':endLng,'id':endId}
-
-
-    print "MIDDLE"+str(midL)
-
-    #print "test"+str(test)
-    #print "way"+str(way)
-    print "jsonarray"+str(jsonarray)
 ################################################################################################################
     print("#######################################")
     # Uber API Pricing Calculations
@@ -115,12 +99,7 @@ def Uber():
         'Content-Type': 'application/json',
     }
     vari=len(midL)
-    print midL
-    print "mid Values"
-    print midL
-    print "Ended"
-
-    print "Calculaion"
+    print "Calculating"
     ####
 
 
@@ -160,7 +139,6 @@ def Uber():
         paraX = {'start_latitude': sLat, 'start_longitude': sLon, 'end_latitude': eLat, 'end_longitude': eLon}
         rX = requests.get(URL, params=paraX, headers=headers)
         dataX = rX.json()
-        print "Data is coming or not"+ str(dataX)
         try:
             for it in dataX["prices"]:
                 if it["localized_display_name"] == "uberX":
@@ -268,14 +246,12 @@ def Uber():
     uberSUV['Time'] = str(float(addTime5 / 60))
     uberSUV['Miles'] = str(addDistance5)
 
-    ##
-    print("UberX :"+uberX['Price']+uberSUV['Price'])
-    ##
+
 ################################################################################################################
     if vari==0:
-        final={'uberX':uberX,'uberXL':uberXL,'uberSelect':uberSLT,'uberBlack':uberBLK,'uberSUV':uberSUV}
+        final={'Uber X':uberX,'Uber XL':uberXL,'Uber Select':uberSLT,'UberBlack':uberBLK,'Uber SUV':uberSUV}
     else:
-        final = {'uberX': uberX, 'uberXL': uberXL, 'uberSelect': uberSLT, 'uberBlack': uberBLK, 'uberSUV': uberSUV,'OptimizedRoute': midL}
+        final = {'Uber X': uberX, 'Uber XL': uberXL, 'Uber Select': uberSLT, 'Uber Black': uberBLK, 'Uber SUV': uberSUV,'OptimizedRoute': midL}
     print str(final)
     return final
 

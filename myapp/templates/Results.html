@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Trip Planner</title>
+    <title>Title</title>
        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
      <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
@@ -13,14 +13,30 @@
   #pck{
 display:none;
 }
+#cheap{
+    color: red;
+}
+@keyframes blink {
+  0% { color: red; }
+  100% { color: black; }
+}
+@-webkit-keyframes blink {
+  0% { color: red; }
+  100% { color: black; }
+}
+.blink {
+  -webkit-animation: blink 1s linear infinite;
+  -moz-animation: blink 1s linear infinite;
+  animation: blink 1s linear infinite;
+
+}
  </style>
 <style>
 #rectangle{
     width:300px;
-    height:300px;
+    height:400px;
     background:grey;
     border-radius: 25px;
-    opacity: 0.5;
     text-align:center;
     padding-top: 50px;
     font-size: 250%;
@@ -70,45 +86,50 @@ display:none;
          <tr>
          <td></td>
     {% for key in lyft.iteritems() %}
-         {% if key[0] =='lyft' %}
+         {% if key[0] =='Lyft' %}
             <td><div id="rectangle">
                   <div class="content">
+                      <img src="{{url_for('static', filename='img/Lyft.jpeg', width=40, height=20, mode='crop')}}" /><br>
                       <strong>{{key[0]}}</strong><br>
+
                       ${{key[1].avg_cost}}<br>
                       {% if key[0] ==minlyft %}
-                        {{"Cheapest Ride"}}
+                       <p id="cheap" class="blink">{{"Cheapest Ride"}}</p>
                       {% endif%}
                   </div>
              </div></td>
-        {% elif key[0] =='lyft_premier'%}
+        {% elif key[0] =='Lyft Premier'%}
                 {%if key[1].avg_cost > 0 %}
                 <td><div id="rectangle">
                   <div class="content">
+                       <img src="{{url_for('static', filename='img/Lyft.jpeg', width=40, height=20, mode='crop')}}" /><br>
                       <strong>{{key[0]}}</strong><br>
                       ${{key[1].avg_cost}}<br>
                       {% if key[0] ==minlyft %}
-                        {{"Cheapest Ride"}}
+                        <p id="cheap" class="blink">{{"Cheapest Ride"}}</p>
                       {% endif%}
                   </div>
              </div></td>
                 {% endif    %}
-        {% elif key[0] =='lyft_line'%}
+        {% elif key[0] =='Lyft Line'%}
                 <td><div id="rectangle">
                   <div class="content">
+                      <img src="{{url_for('static', filename='img/Lyft.jpeg', width=40, height=20, mode='crop')}}" /><br>
                       <strong>{{key[0]}}</strong><br>
                       ${{key[1].avg_cost}}<br>
                       {% if key[0] ==minlyft %}
-                        {{"Cheapest Ride"}}
+                        <p id="cheap" class="blink" >{{"Cheapest Ride"}}</p>
                       {% endif%}
                   </div>
              </div></td>
-        {% elif key[0] =='lyft_plus'%}
+        {% elif key[0] =='Lyft Plus'%}
                <td><div id="rectangle">
                   <div class="content">
+                      <img src="{{url_for('static', filename='img/Lyft.jpeg', width=40, height=20, mode='crop')}}" /><br>
                       <strong>{{key[0]}}</strong><br>
                       ${{key[1].avg_cost}}<br>
                       {% if key[0] ==minlyft %}
-                        {{"Cheapest Ride"}}
+                        <p id="cheap"class="blink">{{"Cheapest Ride"}}</p>
                       {% endif%}
                   </div>
              </div></td>
@@ -122,20 +143,22 @@ display:none;
             {% if key[0] =='uberX' %}
             <td><div id="rectangle">
                   <div class="content">
+                      <img src="{{url_for('static', filename='img/Uber.png', width=40, height=20, mode='crop')}}" /><br>
                       <strong>{{key[0]}}</strong><br>
                       ${{key[1].Price}}<br>
                       {% if key[0] ==min %}
-                        {{"Cheapest Ride"}}
+                        <p id="cheap" class="blink">{{"Cheapest Ride"}}</p>
                       {% endif%}
                   </div>
              </div></td>
             {% else %}
                 <td><div id="rectangle">
                   <div class="content">
+                      <img src="{{url_for('static', filename='img/Uber.png', width=40, height=20, mode='crop')}}" /><br>
                       <strong>{{key[0]}}</strong><br>
                       ${{key[1].Price}}<br>
                       {% if key[0] ==min %}
-                        {{"Cheapest Ride"}}
+                        <p id="cheap" class="blink">{{"Cheapest Ride"}}</p>
                       {% endif%}
                   </div>
              </div></td>

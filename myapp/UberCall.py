@@ -26,7 +26,6 @@ def ubercall(sLat,sLon,eLat,eLon):
     addTime1=0
     add1=0
     add2=0
-    print"Hello from ubercall"
     try:
         for it in dataX["prices"]:
                 if it["localized_display_name"] == "uberX":
@@ -43,5 +42,4 @@ def ubercall(sLat,sLon,eLat,eLon):
                     final=((add1+add2)/2)
     except:
         return "No Data Found"
-    print "Hello again"
     return str(final)

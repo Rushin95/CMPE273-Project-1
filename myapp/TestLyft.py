@@ -35,14 +35,13 @@ def Lyft():
             endId = str(Query[x].id)
 
             # -------------------------------------------------------------------------------------------------------------
-    print "jsonarray" + str(jsonarray)
+
 
     midL = {}
     midlength = len(jsonarray)
     if (int(midlength) > 0 and int(midlength) != 1):
 
         while midlength > 1:
-            print"Loop" + str(count)
             way = {}
             for key in jsonarray.iteritems():
                 lat = key[1]['lat']
@@ -50,20 +49,14 @@ def Lyft():
                 id = key[1]['id']
                 test = lyftcall(startLat, startLng, lat, lng)
                 way[str(startid) + "-" + str(id)] = int(test)
-                print "way=" + str(way)
             minvalue = min(way, key=way.get)
             test = int(minvalue.split("-")[-1])
-            print "test" + str(test)
             if test in jsonarray: del jsonarray[test]
-            print jsonarray
             midlength = len(jsonarray)
-            print "midlength" + str(midlength)
             Data = Location.query.filter_by(id=test).first()
             startLat = Data.lat
             startLng = Data.lng
             startid = Data.id
-            print str(startLat)
-            print str(startLng)
             count = count + 1
             finalpath[count] = minvalue
 
@@ -71,7 +64,6 @@ def Lyft():
         finalpath[count] = str(test) + "-" + str(jsonarray.keys()[0])
         count = count + 1
         finalpath[count] = str(jsonarray.keys()[0]) + "-" + str(endId)
-        print "Finalpath" + str(finalpath)
         test = {}
         sequence = 1
         for key in finalpath.iteritems():
@@ -85,19 +77,15 @@ def Lyft():
 
         midL[location] = {'lat': endLat, 'lon': endLng}
     elif (int(midlength) == 1):
-        print jsonarray.values()[0]['lat']
         midL[0] = {'lat': startLat, 'lon': startLng}
         midL[1] = {'lat': jsonarray.values()[0]['lat'], 'lon': jsonarray.values()[0]['lng']}
         midL[2] = {'lat': endLat, 'lon': endLng}
-        print "json with One Location" + str(jsonarray)
 
     else:
         midL[0] = {'lat': startLat, 'lon': startLng}
         midL[1] = {'lat': endLat, 'lon': endLng}
 
-    print "MIDDLE" + str(midL)
 
-    print "jsonarray" + str(jsonarray)
 
     # CREATING STRING FOR THE OPTIMIZED ROUTE
 
@@ -106,7 +94,7 @@ def Lyft():
 
     for x in range(l):
         strng += ',' + str(midL[x]['lat']) + ',' + str(midL[x]['lon'])
-    print 'string:' + strng
+
 
     # -----------------------------------------------------------------
     # lyft api logic
@@ -206,7 +194,7 @@ def Lyft():
     print "For lyft_plus:", lyft_plus
     print "For lyft_premier:", lyft_premier
     # all={'lyft':lyft,'lyft_plus':lyft_plus,'lyft_premier':lyft_premier, 'string':strng,'way':way}
-    all = {'lyft': lyft, 'lyft_plus': lyft_plus, 'lyft_premier': lyft_premier}
+    all = {'Lyft': lyft, 'Lyft Plus': lyft_plus, 'Lyft Premier': lyft_premier}
     print all
     print 'RETURNING FROM THE FUNCTION'
     return all

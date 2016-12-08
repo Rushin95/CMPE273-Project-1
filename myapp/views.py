@@ -77,7 +77,7 @@ def addplaces():
 
     Query=Location.query.all()
     length=len(Query)
-    print length
+    #print length
     for x in range(length):
         print jsonarray
         dict['uid']=Query[x].id
@@ -115,41 +115,25 @@ def trip():
     if(length==0):
         return render_template('Results.html',length=length)
     else:
-        lyftdata=TestLyft.Lyft()
-
         uberdata=testUber.Uber()
+        lyftdata=TestLyft.Lyft()
         if(str(uberdata)=="No Data Found" or str(lyftdata)=="No Data Found" ):
             return render_template("ErrorPage.html")
 
         else:
             length=len(lyftdata)
             uberCopy=uberdata.copy()
-            print lyftdata
-            print uberdata
-            print "UberCopy"+str(uberCopy)
-            print "###############"
-            print "IN Views Functions"
             new_dict=uberCopy.get('OptimizedRoute')
-            print "New Dict"+str(new_dict)
             value=""
 
             for key in new_dict.iteritems():
                 id=key[1]['id']
-                print str(id)
                 Send_data=Location.query.filter_by(id=int(id)).first()
                 final_dict[int(key[0]+1)]=str(Send_data.address)+","+str(Send_data.city)+","+str(Send_data.state)+","+str(Send_data.zip)
                 value=str(value)+str(int(key[0]+1))+": "+str(Send_data.address)+","+str(Send_data.city)+","+str(Send_data.state)+","+str(Send_data.zip)+"\n"
 
-            print "Optimized Dicr"+str(value)
-            print "Finaldict"+str(final_dict)
-
-            #print str(Delete_data)
-            print new_dict
             minuber=GetMin.UberMin(uberdata)
             minlyft=GetMin.Lyftmin(lyftdata)
-            print minuber
-            print minlyft
-
             user = User.query.filter_by(email=session['email']).first()
             # Send the message
             msg = Message('Trip Planner', sender='loco_perro@rocketmail.com',
@@ -384,6 +368,7 @@ def trips_POST():
     if request.method == 'POST':
         print 'INSIDE RESTFUL FUNCTION------------------------------------------------------------'
 
+        global startLat, startLng, jsonarray, finalpath, test, midlength, startid, endId, sequence, endLat, endLng, endId, location
         # Get the data from Request Body
         request_trip = json.loads(request.data)
 
@@ -428,7 +413,7 @@ def trips_POST():
         finalpath = {}
         count = 0
         Query = Location.query.all();
-        global startLat, startLng, jsonarray, finalpath, test, midlength, startid, endId, sequence, endLat, endLng, endId, location
+
 
         length = len(Query)
 
