@@ -7,9 +7,11 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
      <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <select multiple id="waypoints">
+   {% if length > 0 %}
         {% for Q in way_set.iteritems() %}
         <option value="{{Q[1]}}" selected></option>
         {% endfor%}
+        {% endif %}
     </select>
  <style>
  #waypoints{
