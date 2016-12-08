@@ -25,7 +25,7 @@ def index():
 def new():
 
     new_dict=uberCopy.get('OptimizedRoute')
-    rendered=render_template("Invoice.html",lyft=lyftdata,length=length,uber=uberCopy,min=minuber,minlyft=minlyft,Query=Query,new_dict=new_dict)
+    rendered=render_template("Invoice.html",lyft=lyftdata,length=length,uber=uberCopy,min=minuber,minlyft=minlyft,Query=Query,new_dict=final_dict)
     pdf=pdfkit.from_string(rendered,False)
     response=make_response(pdf)
     response.headers['Content-Type']='application/pdf'
@@ -402,7 +402,7 @@ def trips_POST():
         # UBER CALLING CODE---------------------------------------------------------------------------------------
         uberdata = testUber.Uber()
         print uberdata
-        print uberdata['uberX']['Miles']
+        print uberdata['Uber X']['Miles']
 
         # LYFT API CODE-----------------------------------------------------------------------------------------
 
@@ -666,11 +666,11 @@ def trips_POST():
         uber_db = {
 
             "name": "Uber",
-            "total_costs_by_cheapest_car_type": float(uberdata['uberX']['Price']),
+            "total_costs_by_cheapest_car_type": float(uberdata['Uber X']['Price']),
             "currency_code": "USD",
-            "total_duration": int(float(uberdata['uberX']['Time'])),
+            "total_duration": int(float(uberdata['Uber X']['Time'])),
             "duration_unit": "minute",
-            "total_distance": float(uberdata['uberX']['Miles']),
+            "total_distance": float(uberdata['Uber X']['Miles']),
             "distance_unit": "mile"
         }
         providers=[]
@@ -688,11 +688,11 @@ def trips_POST():
             "providers": [
                 {
                     "name": "Uber",
-                    "total_costs_by_cheapest_car_type": float(uberdata['uberX']['Price']),
+                    "total_costs_by_cheapest_car_type": float(uberdata['Uber X']['Price']),
                     "currency_code": "USD",
-                    "total_duration": int(float(uberdata['uberX']['Time'])),
+                    "total_duration": int(float(uberdata['Uber X']['Time'])),
                     "duration_unit": "minute",
-                    "total_distance": float(uberdata['uberX']['Miles']),
+                    "total_distance": float(uberdata['Uber X']['Miles']),
                     "distance_unit": "mile"
                 },
                 {
