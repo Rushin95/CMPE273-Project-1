@@ -1,7 +1,7 @@
 # CMPE273-Project
 Final Project CMPE273 class
 
-##############Installation##############
+## Installation
 1. Clone it or download the file on your system.
 2. Install and import all project requirements as mentioned in requirements.txt file.
 3. Change the DB_PASSWORD as your database password in:
