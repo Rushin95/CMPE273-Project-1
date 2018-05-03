@@ -26,8 +26,8 @@ MAIL_PORT = 465
 MAIL_USE_SSL = True
 MAIL_USE_TLS = False
 MAIL_USERNAME = 'loco_perro@rocketmail.com'
-MAIL_PASSWORD = 'SuperSecure2016Password'
+MAIL_PASSWORD = ''
 
 
 #Configure Googlge Key required to connect GoogleMaps API
-GOOGLEMAPS_KEY = 'AIzaSyBYsJ3ig9aPJCgfk45XqRj-ZfqreytYC-w'
+GOOGLEMAPS_KEY = ''
